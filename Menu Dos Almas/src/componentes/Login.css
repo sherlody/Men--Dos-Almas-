@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer components {
+  /* .btn-primary {
+      @apply py-1.5 px-3 text-center bg-blue-700 rounded-md text-white;
+  } */
+}
+/* ===== FONDO GENERAL ===== */
+.login-container {
+  background-color: #f3f4f6;
+}
+
+/* ===== TARJETA PRINCIPAL ===== */
+.login-card {
+  background-color: #d9a16a;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== INPUTS ===== */
+.login-input {
+  background-color: #e5e7eb;
+  border: none;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.login-input:focus {
+  box-shadow: 0 0 0 2px #002D74;
+  background-color: #fff;
+}
+
+/* ===== BOTÓN ===== */
+.login-btn {
+  background-color: #0b3b82;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #1d5bbf;
+  transform: scale(1.03);
+}
+
+/* ===== TEXTO ===== */
+.login-title {
+  color: #002D74;
+}
+
+.login-link {
+  color: #000;
+  cursor: pointer;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== IMAGEN ===== */
+.login-img {
+  object-fit: cover;
+  height: 100%;
+}
