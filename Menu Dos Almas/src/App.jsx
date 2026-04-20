@@ -1,11 +1,14 @@
 
 import './App.css'
-import LoginEmpleado from './componentes/LoginEmpleado';
+import LoginEmpleado from './paginas/Login';
+import PaginaPrincipal from './paginas/PaginaPrincipal';
 
 function App() {
 
   return (
-    <LoginEmpleado />
+    <PaginaPrincipal />
+    
+    
   )
 }
 

@@ -1,6 +1,6 @@
 import "./login.css";
 
-function LoginEmpleado() {
+function Login() {
   return (
     <section className="login-section">
       <div className="login-card">
@@ -18,7 +18,7 @@ function LoginEmpleado() {
 
         {/* IMAGEN */}
         <div className="image-side">
-          <img src="https://images.unsplash.com/photo-1552010099-5dc86fcfaa38" alt="login" />
+          <img src="src/imagenes/logo-DosAlmas.jpeg" alt="login" />
         </div>
 
       </div>
@@ -26,4 +26,4 @@ function LoginEmpleado() {
   );
 }
 
-export default LoginEmpleado;
+export default Login;
