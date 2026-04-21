@@ -1,43 +1,26 @@
-:root {
-  --header-height: 4rem;
-  --sidebar-width: 240px;
+/* DashboardEmpleado.css */
+
+/* Redondeado extra suave para los contenedores */
+@import "tailwindcss";
+.rounded-3xl-custom {
+  border-radius: 25px;
 }
 
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-down {
-  animation: slideDown 0.5s ease-out;
-}
-
-.animate-fade-in {
+/* Animación sutil al cargar */
+main {
   animation: fadeIn 0.5s ease-out;
 }
 
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo de la scrollbar para que no rompa el diseño */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }

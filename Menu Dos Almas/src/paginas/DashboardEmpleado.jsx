@@ -1,93 +1,117 @@
 import { useState } from 'react';
-//import './DashboardEmpleado.css';
+import './DashboardEmpleado.css';
+import { 
+HiOutlineHome, HiOutlineAdjustments, HiOutlineDuplicate, 
+  HiOutlineUserCircle, HiOutlineCog, HiOutlineLogout, HiOutlineSearch, HiOutlineBell 
+} from "react-icons/hi";
 
 function DashboardEmpleado() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="bg-indigo-50 min-h-screen overflow-x-hidden">
-
-      {/* OVERLAY */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-indigo-900/50 z-40"
-          onClick={() => setMenuOpen(false)}
-        ></div>
-      )}
-
-      {/* HEADER */}
-      <header className="fixed w-full bg-white text-indigo-800 z-50 shadow-lg animate-slide-down">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between h-16">
-          
-          <button
-            className="p-2 lg:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            ☰
-          </button>
-
-          <div className="text-xl font-bold text-blue-900">
-            Admin<span className="text-indigo-800">Panel</span>
+    <div className="bg-[#f0f4ff] min-h-screen font-sans text-[#1a2b6d]">
+      
+      {/* HEADER - Barra superior fija */}
+      <header className="fixed top-0 left-0 w-full bg-white z-50 px-8 py-4 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-4">
+          {/* Botón hamburguesa para móvil */}
+          <button className="lg:hidden text-2xl" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+          <div className="text-2xl font-bold text-[#1a2b6d]">
+            Admin<span className="text-[#4e5ba6]">Panel</span>
           </div>
-
-          <img
-            className="w-10 h-10 rounded-full object-cover"
-            src="https://i.pinimg.com/564x/de/0f/3d/de0f3d06d2c6dbf29a888cf78e4c0323.jpg"
-            alt="Profile"
-          />
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <HiOutlineSearch className="text-2xl cursor-pointer text-gray-400" />
+          <HiOutlineBell className="text-2xl cursor-pointer text-gray-400" />
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+            <img
+              className="w-full h-full object-cover"
+              src="https://i.pinimg.com/564x/de/0f/3d/de0f3d06d2c6dbf29a888cf78e4c0323.jpg"
+              alt="Profile"
+            />
+          </div>
         </div>
       </header>
 
-      {/* CONTENIDO */}
-      <div className="pt-16 max-w-7xl mx-auto flex">
+      {/* CONTENEDOR PRINCIPAL - pt-28 para dar espacio al Header */}
+      <div className="pt-28 flex flex-row px-8 gap-8 max-w-[1800px] mx-auto items-start">
+        
+        {/* SIDEBAR - Los bloques blancos redondeados (lo que encerraste en rojo) */}
+        <aside className={`fixed lg:static w-[280px] shrink-0 transition-all duration-300 z-40
+          ${menuOpen ? "left-4 top-24" : "-left-full"} lg:left-0 flex flex-col gap-6`}>
+          
+          {/* Bloque de Menú Superior */}
+          <div className="bg-white rounded-[35px] shadow-sm p-4 border border-white/50">
+            <SidebarItem icon={<HiOutlineHome />} label="Home" active />
+            <SidebarItem icon={<HiOutlineAdjustments />} label="Some menu item" />
+            <SidebarItem icon={<HiOutlineDuplicate />} label="Another menu item" />
+          </div>
 
-        {/* SIDEBAR */}
-        <aside
-          className={`fixed lg:static w-[240px] bg-indigo-50 h-[calc(100vh-4rem)] 
-          transform ${menuOpen ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 transition-transform duration-300 z-50 p-4`}
-        >
-          <div className="bg-white rounded-xl shadow-lg mb-6 p-4">
-            <a href="#" className="block py-2">Home</a>
-            <a href="#" className="block py-2">Menu</a>
-            <a href="#" className="block py-2">Otro</a>
+          {/* Bloque de Menú Inferior */}
+          <div className="bg-white rounded-[35px] shadow-sm p-4 border border-white/50">
+            <SidebarItem icon={<HiOutlineUserCircle />} label="Profile" />
+            <SidebarItem icon={<HiOutlineCog />} label="Settings" />
+            <SidebarItem icon={<HiOutlineLogout />} label="Log out" />
           </div>
         </aside>
 
-        {/* MAIN */}
-        <main className="flex-1 p-4">
-
-          <div className="flex flex-col lg:flex-row gap-4 mb-6">
-            
-            <div className="flex-1 bg-indigo-100 rounded-xl p-6 animate-fade-in">
-              <h2 className="text-4xl text-blue-900">
-                Welcome <br /><strong>Dash</strong>
-              </h2>
+        {/* CONTENIDO DERECHO (Main) */}
+        <main className="flex-1 min-w-0">
+          
+          {/* TARJETAS SUPERIORES (Welcome e Inbox) - En una fila */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="bg-[#e0e7ff] rounded-[40px] p-10 flex flex-col justify-between min-h-[250px] shadow-sm">
+               <div>
+                  <h2 className="text-4xl lg:text-5xl text-[#2d3a8c] font-light">Welcome</h2>
+                  <h2 className="text-5xl lg:text-6xl text-[#1a2b6d] font-bold">Dash</h2>
+               </div>
+               <div className="mt-4">
+                  <span className="bg-[#2d3a8c] text-white px-8 py-2 rounded-full text-lg font-medium inline-block">
+                    01:51
+                  </span>
+               </div>
             </div>
 
-            <div className="flex-1 bg-blue-100 rounded-xl p-6 animate-fade-in">
-              <h2 className="text-4xl text-blue-900">
-                Inbox <br /><strong>23</strong>
-              </h2>
+            <div className="bg-[#dbeafe] rounded-[40px] p-10 flex flex-col justify-between min-h-[250px] shadow-sm">
+               <div>
+                  <h2 className="text-4xl lg:text-5xl text-[#2d3a8c] font-light">Inbox</h2>
+                  <h2 className="text-5xl lg:text-6xl text-[#1a2b6d] font-bold">23</h2>
+               </div>
+               <div className="mt-4">
+                  <button className="bg-[#1e40af] text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-[#1a368a] transition-all shadow-lg shadow-blue-100">
+                    See messages
+                  </button>
+               </div>
             </div>
-
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1,2,3].map((item) => (
-              <div
-                key={item}
-                className="bg-white rounded-xl shadow-lg p-6 h-64 animate-slide-up"
-              >
-                Card {item}
+          {/* STATS CARDS - Rejilla de 3 columnas */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-[40px] shadow-sm p-10 h-80 border border-white">
+                <h3 className="text-2xl font-bold text-[#2d3a8c]">Stats Card {i}</h3>
               </div>
             ))}
           </div>
-
         </main>
       </div>
     </div>
   );
 }
+
+// Componente para los items del Sidebar
+const SidebarItem = ({ icon, label, active }) => (
+  <div className={`flex items-center justify-between p-4 cursor-pointer rounded-2xl transition-all group mb-1
+    ${active ? 'bg-indigo-50 text-[#1a2b6d]' : 'text-gray-400 hover:bg-gray-50 hover:text-[#1a2b6d]'}`}>
+    <div className="flex items-center gap-4">
+      <span className="text-2xl">{icon}</span>
+      <span className="font-semibold text-sm tracking-wide">{label}</span>
+    </div>
+    <span className={`text-xs transition-transform group-hover:translate-x-1 ${active ? 'text-indigo-600' : 'text-gray-300'}`}>
+      ❯
+    </span>
+  </div>
+);
 
 export default DashboardEmpleado;
