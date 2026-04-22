@@ -1,26 +1,107 @@
-/* DashboardEmpleado.css */
-
-/* Redondeado extra suave para los contenedores */
 @import "tailwindcss";
-.rounded-3xl-custom {
+
+/* Layout Base */
+.dashboard-container {
+  background-color: #f3f6ff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Fijo */
+.header {
+  background: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo { font-size: 20px; font-weight: bold; color: #d9a16a; }
+.logo span { color: #d9a16a; }
+.header-icons { display: flex; align-items: center; gap: 20px; }
+.icon { font-size: 20px; color: #999; cursor: pointer; }
+.profile-circle { width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 2px solid #eef; }
+.profile-circle img { width: 100%; height: 100%; object-cover: cover; }
+
+/* Cuerpo con Flexbox */
+.dashboard-body {
+  display: flex;
+  padding: 30px;
+  gap: 30px;
+  flex: 1;
+}
+
+/* Sidebar: Ancho Fijo para que nunca desaparezca */
+.sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-group {
+  background: white;
   border-radius: 25px;
+  padding: 10px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
 }
 
-/* Animación sutil al cargar */
-main {
-  animation: fadeIn 0.5s ease-out;
+.sidebar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 15px;
+  color: #999;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.sidebar-item.active { background: #f0f3ff; color: #a5621f; }
+.item-content { display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; }
+.item-icon { font-size: 22px; }
+.item-arrow { font-size: 10px; opacity: 0.5; }
+
+/* Contenido Principal: Ocupa el resto */
+.main-content {
+  flex: 1; /* Esto hace que el contenido se estire */
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-/* Estilo de la scrollbar para que no rompa el diseño */
-::-webkit-scrollbar {
-  width: 6px;
+.top-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+
+.card {
+  border-radius: 40px;
+  padding: 40px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
+.welcome-card { background-color: #d9a16a; }
+.inbox-card { background-color: #d9a16a; }
+.card-info p { font-size: 30px; opacity: 0.7; margin: 0; }
+.card-info h2 { font-size: 50px; margin: 0; font-weight: bold; }
+
+.badge { background: #ac5b09; color: white; padding: 8px 20px; border-radius: 15px; width: fit-content; font-weight: bold; }
+.btn-primary { background: #ac5b09; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; width: fit-content; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.stats-card { background: white; border-radius: 40px; padding: 30px; height: 250px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }

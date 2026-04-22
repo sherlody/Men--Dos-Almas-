@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./PaginaPrincipal.css";
 
 function PaginaPrincipal() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="pagina-principal-container">
@@ -22,8 +24,8 @@ function PaginaPrincipal() {
           </button>
 
           {menuOpen && (
-            <div className="menu-dropdown">
-              <div className="menu-item">Iniciar sesión</div>
+            <div className="menu-item" onClick={() => navigate("/login")}>
+              Iniciar sesión
             </div>
           )}
         </div>
