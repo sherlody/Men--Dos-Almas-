@@ -40,7 +40,7 @@ function PaginaPrincipal() {
       <div className="tables-container">
         <div className="tables-grid">
           {[1, 2, 3, 4].map((num) => (
-            <button key={num} className="table-button">
+            <button key={num} className="table-button" onClick={() => navigate("/dashboard-cliente")}>
               {num}
             </button>
           ))}
