@@ -8,13 +8,22 @@ function Login() {
 
   const navigate = useNavigate();
 
-  //validar usuario y contraseña localmente
+  // Validar credenciales y redirigir según el rol
   const handleSubmit = (e) => {
-    e.preventDefault(); // evita recarga
+    e.preventDefault(); // Evita que la página se recargue
 
+    // 1. Credenciales de Administrador / Dashboard
     if (user === "sherlin123" && password === "toto-122") {
-      navigate("/dashboard"); // 
-    } else {
+      navigate("/dashboard");
+    } 
+    
+    // 2. Credenciales para la Pagina del Cocinero
+    else if (user === "cocinero123" && password === "soul-2026") {
+      navigate("/cocinero"); // Asegúrate de que esta ruta esté en tu App.js
+    } 
+    
+    // 3. Fallo de autenticación
+    else {
       alert("Usuario o contraseña incorrectos");
     }
   };
@@ -26,6 +35,9 @@ function Login() {
         {/* FORMULARIO */}
         <div className="form-side">
           <h2 className="login-title">Iniciar sesión</h2>
+          <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>
+            Dos Almas - Acceso al Sistema
+          </p>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <input
@@ -34,6 +46,7 @@ function Login() {
               placeholder="Usuario"
               value={user}
               onChange={(e) => setUser(e.target.value)}
+              required
             />
 
             <input
@@ -42,6 +55,7 @@ function Login() {
               placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             <button className="login-btn" type="submit">
@@ -52,9 +66,9 @@ function Login() {
           <div className="login-link">¿Olvidaste tu contraseña?</div>
         </div>
 
-        {/* IMAGEN */}
+        {/* IMAGEN / LOGO */}
         <div className="image-side">
-          <img src="/src/imagenes/logo-DosAlmas.jpeg" alt="login" />
+          <img src="/src/imagenes/logo-DosAlmas.jpeg" alt="Logo Dos Almas" />
         </div>
 
       </div>

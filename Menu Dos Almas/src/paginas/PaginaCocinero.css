@@ -1,0 +1,167 @@
+/* Configuración General y Centrado */
+.pricing-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #ffffff; /* Fondo blanco para toda la página */
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.pricing-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  gap: 10; /* Sin espacio entre tarjetas, los bordes están juntos */
+}
+
+/* Estilos de las Tarjetas (Pricing Cards) */
+.pricing-card {
+  flex: 1; /* Distribuye el espacio equitativamente */
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.card-outline {
+  border: 2px solid #2563eb; /* Azul para los bordes */
+  min-height: 480px; /* Altura para los planes laterales */
+}
+
+.card-popular {
+  background-color: #2563eb; /* Fondo azul para el plan popular */
+  flex-grow: 1.1; /* Hace que el plan central sea más grande */
+  min-height: 520px; /* Altura mayor para el plan central */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: none; /* Sin borde azul exterior */
+}
+
+/* Cabeceras de las Tarjetas */
+.card-header {
+  padding: 1.5rem 1rem;
+}
+
+.header-white {
+  background-color: #ffffff;
+  color: #2563eb; /* Texto azul */
+  border-bottom: 2px solid #2563eb; /* Línea de división azul */
+}
+
+.header-popular {
+  border-bottom: none; /* Sin línea para el plan popular */
+}
+
+/* Cuerpo de las Tarjetas */
+.card-body {
+  padding: 2rem 1rem;
+  flex-grow: 1; /* Empuja el botón al fondo */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.body-blue {
+  background-color: #2563eb; /* Fondo azul para todos los cuerpos */
+  color: #ffffff; /* Texto blanco por defecto */
+}
+
+/* Tipografía y Elementos de Texto */
+.plan-name {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+  color: #2563eb; /* Azul para planes laterales */
+}
+
+.price {
+  font-size: 4rem; /* Gran tamaño para el precio */
+  font-weight: bold;
+  margin: 0.5rem 0;
+  color: #2563eb; /* Azul para planes laterales */
+}
+
+.price span.cents {
+  font-size: 2rem; /* Céntimos más pequeños */
+}
+
+.period {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  color: #2563eb; /* Azul para planes laterales */
+}
+
+.popular-badge {
+  color: #fbbf24; /* Color amarillo/dorado */
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature {
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+  color: #ffffff; /* Texto blanco */
+}
+
+/* Utilidades de Texto para sobreescribir colores en el plan popular */
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Botones (GET STARTED) */
+.btn {
+  margin-top: 2rem;
+  padding: 0.75rem 2.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-white {
+  background-color: #ffffff;
+  color: #2563eb;
+}
+
+.btn-yellow {
+  background-color: #fbbf24;
+  color: #2563eb;
+}
+
+.btn:hover {
+  background-color: #1e3a8a; /* Azul oscuro al pasar el ratón */
+  color: #ffffff;
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .pricing-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .card-popular {
+    transform: none; /* Desactiva la escala en móviles */
+    order: -1; /* Mueve el plan popular al principio en móviles */
+  }
+  
+  .card-outline {
+    width: 100%;
+    max-width: 350px;
+  }
+}
