@@ -17,7 +17,7 @@
   align-items: center;
   width: 100%;
   max-width: 1200px;
-  gap: 10; /* Sin espacio entre tarjetas, los bordes están juntos */
+  gap: 0; /* Sin espacio entre tarjetas, los bordes están juntos */
 }
 
 /* Estilos de las Tarjetas (Pricing Cards) */
