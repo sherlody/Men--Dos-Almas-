@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import './DashboardEmpleado.css';
 import { 
   HiOutlineHome, HiOutlineAdjustments, HiOutlineDuplicate, 
-  HiOutlineUserCircle, HiOutlineCog, HiOutlineLogout, HiOutlineSearch, HiOutlineBell 
+  HiOutlineUserCircle, HiOutlineCog, HiOutlineLogout, HiOutlineSearch, HiOutlineBell, 
+  HiOutlineClipboardList
 } from "react-icons/hi";
 
 
@@ -32,45 +34,22 @@ function DashboardEmpleado() {
         {/* SIDEBAR - Siempre visible y con ancho fijo */}
         <aside className="sidebar">
           <div className="sidebar-group">
-            <SidebarItem icon={<HiOutlineHome />} label="Inicio" active />
+            <SidebarItem icon={<HiOutlineHome />} label="Inicio"  onClick={() => navigate("/dashboard")} />
             <SidebarItem icon={<HiOutlineAdjustments />} label="Some menu item" />
-            <SidebarItem icon={<HiOutlineDuplicate />} label="Another menu item" />
+            <SidebarItem icon={<HiOutlineClipboardList />} label="Inventario" onClick={() => navigate("/dashboard/inventario")} />
           </div>
 
           <div className="sidebar-group">
             <SidebarItem icon={<HiOutlineUserCircle />} label="Perfil" />
             <SidebarItem icon={<HiOutlineCog />} label="Configuración" />
-            <SidebarItem icon={<HiOutlineLogout />} label="Cerrar sesión" onClick={() => navigate("/login")} />
+            <SidebarItem icon={<HiOutlineLogout />} label="Cerrar sesión" onClick={() => {localStorage.removeItem("isLoggedIn"); navigate("/login"); }} />
           </div>
         </aside>
 
         {/* CONTENIDO PRINCIPAL - Se ajusta al espacio restante */}
         <main className="main-content">
-          <div className="top-cards">
-            <div className="card welcome-card">
-               <div className="card-info">
-                  <p>Welcome</p>
-                  <h2>Dash</h2>
-               </div>
-               <span className="badge">01:51</span>
-            </div>
-
-            <div className="card inbox-card">
-               <div className="card-info">
-                  <p>Inbox</p>
-                  <h2>23</h2>
-               </div>
-               <button className="btn-primary">See messages</button>
-            </div>
-          </div>
-
-          <div className="stats-grid">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="stats-card">
-                <h3>Stats Card {i}</h3>
-              </div>
-            ))}
-          </div>
+            <Outlet />
+          
         </main>
       </div>
     </div>

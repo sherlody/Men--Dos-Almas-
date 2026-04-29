@@ -4,6 +4,8 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import PaginaPrincipal from './paginas/PaginaPrincipal';
 import Login from './paginas/Login';
 import DashboardEmpleado from './paginas/DashboardEmpleado';
+import DashboardInicio from './paginas/DashboardInicio';
+import Inventario from './paginas/Inventario';
 import DashboardCliente from './paginas/DashboardCliente';
 import PaginaCocinero from './paginas/PaginaCocinero';
 
@@ -12,12 +14,19 @@ function App() {
   return (
     <Router>
       <Routes>
+
+        {/* PUBLICAS */}
         <Route path="/" element={<PaginaPrincipal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard-cliente" element={<DashboardCliente />} />
-         <Route path="/cocinero" element={<PaginaCocinero />} />
-        <Route path="/dashboard" element={<DashboardEmpleado />} />
-        
+        <Route path="/cocinero" element={<PaginaCocinero />} />
+
+        {/* DASHBOARD (PADRE) */}
+        <Route path="/dashboard" element={<DashboardEmpleado />}>
+          <Route index element={<DashboardInicio />} /> {/* /dashboard */}
+          <Route path="inventario" element={<Inventario />} /> {/* /dashboard/inventario */}
+        </Route>
+
       </Routes>
     </Router>
   )

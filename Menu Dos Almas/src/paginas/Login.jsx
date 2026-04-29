@@ -1,12 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 
 function Login() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
-
   const navigate = useNavigate();
+
+  // ✅ Verificar si ya hay sesión iniciada
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (isLoggedIn === "true") {
+      // Aquí puedes decidir a dónde redirigir según tu lógica
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   // Validar credenciales y redirigir según el rol
   const handleSubmit = (e) => {
@@ -14,12 +22,14 @@ function Login() {
 
     // 1. Credenciales de Administrador / Dashboard
     if (user === "sherlin123" && password === "toto-122") {
+      localStorage.setItem("isLoggedIn", "true"); // Guardar sesión
       navigate("/dashboard");
     } 
     
     // 2. Credenciales para la Pagina del Cocinero
     else if (user === "cocinero123" && password === "soul-2026") {
-      navigate("/cocinero"); // Asegúrate de que esta ruta esté en tu App.js
+      localStorage.setItem("isLoggedIn", "true"); // Guardar sesión
+      navigate("/cocinero");
     } 
     
     // 3. Fallo de autenticación
