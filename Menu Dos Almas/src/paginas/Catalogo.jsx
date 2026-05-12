@@ -1,4 +1,22 @@
-function Inventario() {
+import { useState } from "react";
+import Modal from "../componentes/Modal";
+
+function Catalogo() {
+    const [openModal, setOpenModal] = useState(false);
+    const camposProducto = [
+  {
+    label: "Nombre producto",
+    type: "text",
+  },
+  {
+    label: "Precio",
+    type: "number",
+  },
+  {
+    label: "Imagen",
+    type: "text",
+  },
+];
   const productos = [
     {
       id: 1,
@@ -43,13 +61,24 @@ function Inventario() {
       {/* TITULO */}
       <div className="flex justify-between items-center mb-10">
         <h1 className="font-bold text-4xl mb-2">
-          Inventario de Productos
+          Catalogo de Productos
         </h1>
       
         {/* BOTON AGREGAR */}
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-8 hover:bg-blue-700 transition">
+        <button onClick={() => setOpenModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-8 hover:bg-blue-700 transition">
           Agregar nuevo producto
         </button>
+        {openModal && (
+        <Modal
+          titulo="Nuevo producto"
+          campos={camposProducto}
+          onClose={() => setOpenModal(false)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            alert("Producto guardado");
+          }}
+        />
+      )}
       </div>
 
 
@@ -91,7 +120,7 @@ function Inventario() {
                   </span>
                 </div>
 
-                <button className="border px-3 py-1 rounded-lg text-sm hover:bg-gray-100 transition">
+                <button onClick={() => setOpenModal(true)} className="border px-3 py-1 rounded-lg text-sm hover:bg-gray-100 transition">
                   Editar
                 </button>
 
@@ -106,4 +135,4 @@ function Inventario() {
   );
 }
 
-export default Inventario;
+export default Catalogo;

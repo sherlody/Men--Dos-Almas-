@@ -12,10 +12,10 @@ function DashboardHome() {
 
         <div className="card inbox-card">
           <div className="card-info">
-            <p>Clientes atendidos</p>
+            <p>Mesas atendidas</p>
             <h2>Hoy</h2>
           </div>
-          <button className="btn-primary">Ver clientes</button>
+          <button className="btn-primary">Ver mesas</button>
         </div>
       </div>
 

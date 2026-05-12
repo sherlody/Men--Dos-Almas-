@@ -5,7 +5,9 @@ import PaginaPrincipal from './paginas/PaginaPrincipal';
 import Login from './paginas/Login';
 import DashboardEmpleado from './paginas/DashboardEmpleado';
 import DashboardInicio from './paginas/DashboardInicio';
-import Inventario from './paginas/Inventario';
+import Catalogo from './paginas/Catalogo';
+import AjustesMenu from './paginas/AjustesMenu';
+import Usuarios from './paginas/Usuarios';
 import DashboardCliente from './paginas/DashboardCliente';
 import PaginaCocinero from './paginas/PaginaCocinero';
 
@@ -26,7 +28,9 @@ function App() {
         {/* DASHBOARD (PADRE) */}
         <Route path="/dashboard" element={<DashboardEmpleado />}>
           <Route index element={<DashboardInicio />} /> {/* /dashboard */}
-          <Route path="inventario" element={<Inventario />} /> {/* /dashboard/inventario */}
+          <Route path="catalogo" element={<Catalogo />} /> {/* /dashboard/catalogo */}
+          <Route path="ajustes-menu" element={<AjustesMenu />} /> {/* /dashboard/ajustes-menu */}
+          <Route path="usuarios" element={<Usuarios />} /> {/* /dashboard/usuarios */}
         </Route>
 
       </Routes>

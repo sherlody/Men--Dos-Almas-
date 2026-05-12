@@ -4,7 +4,8 @@ import './DashboardEmpleado.css';
 import { 
   HiOutlineHome, HiOutlineAdjustments, HiOutlineDuplicate, 
   HiOutlineUserCircle, HiOutlineCog, HiOutlineLogout, HiOutlineSearch, HiOutlineBell, 
-  HiOutlineClipboardList
+  HiOutlineClipboardList,
+  HiOutlineIdentification
 } from "react-icons/hi";
 
 
@@ -35,13 +36,14 @@ function DashboardEmpleado() {
         <aside className="sidebar">
           <div className="sidebar-group">
             <SidebarItem icon={<HiOutlineHome />} label="Inicio"  onClick={() => navigate("/dashboard")} />
-            <SidebarItem icon={<HiOutlineAdjustments />} label="Some menu item" />
-            <SidebarItem icon={<HiOutlineClipboardList />} label="Inventario" onClick={() => navigate("/dashboard/inventario")} />
+            <SidebarItem icon={<HiOutlineAdjustments />} label="Ajustes menú" onClick={()=> navigate("/dashboard/ajustes-menu")} />
+            <SidebarItem icon={<HiOutlineClipboardList />} label="Catalogo" onClick={() => navigate("/dashboard/catalogo")} />
           </div>
 
           <div className="sidebar-group">
             <SidebarItem icon={<HiOutlineUserCircle />} label="Perfil" />
             <SidebarItem icon={<HiOutlineCog />} label="Configuración" />
+            <SidebarItem icon= {<HiOutlineIdentification />} label="Usuarios" onClick={()=> navigate("/dashboard/usuarios")}/>
             <SidebarItem icon={<HiOutlineLogout />} label="Cerrar sesión" onClick={() => {localStorage.removeItem("isLoggedIn"); navigate("/login"); }} />
           </div>
         </aside>
