@@ -36,11 +36,16 @@ function PaginaPrincipal() {
         Por favor elija el número de mesa en el que se encuentra
       </p>
 
-      {/* BOTONES */}
+      {/* BOTONES MODIFICADOS */}
       <div className="tables-container">
         <div className="tables-grid">
           {[1, 2, 3, 4].map((num) => (
-            <button key={num} className="table-button" onClick={() => navigate("/dashboard-cliente")}>
+            <button 
+              key={num} 
+              className="table-button" 
+              // Ahora enviamos el número de mesa a la URL
+              onClick={() => navigate(`/dashboard-cliente/${num}`)} 
+            >
               {num}
             </button>
           ))}

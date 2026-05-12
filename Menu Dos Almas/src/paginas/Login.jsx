@@ -27,7 +27,7 @@ function Login() {
     } 
     
     // 2. Credenciales para la Pagina del Cocinero
-    else if (user === "cocinero123" && password === "soul-2026") {
+    else if (user === "cocinero123" && password === "1234") {
       localStorage.setItem("isLoggedIn", "true"); // Guardar sesión
       navigate("/cocinero");
     } 

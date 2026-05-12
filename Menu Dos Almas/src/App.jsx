@@ -20,6 +20,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard-cliente" element={<DashboardCliente />} />
         <Route path="/cocinero" element={<PaginaCocinero />} />
+        <Route path="/dashboard-cliente/:mesaId" element={<DashboardCliente />} />
+        <Route path="/pagina-cocinero" element={<PaginaCocinero />} />
 
         {/* DASHBOARD (PADRE) */}
         <Route path="/dashboard" element={<DashboardEmpleado />}>
