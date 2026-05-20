@@ -7,6 +7,43 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: user,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("usuario", JSON.stringify(data.usuario));
+        // Redirección por rol
+        if (data.usuario.id_rol === 1) {
+          navigate("/dashboard");
+        }
+        else if (data.usuario.id_rol === 2) {
+          navigate("/cocinero");
+        }
+        else if (data.usuario.id_rol === 3) {
+          navigate("/mesero");
+        }
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error del servidor");
+    }
+  };
+
   // ✅ Verificar si ya hay sesión iniciada
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -16,28 +53,7 @@ function Login() {
     }
   }, [navigate]);
 
-  // Validar credenciales y redirigir según el rol
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Evita que la página se recargue
-
-    // 1. Credenciales de Administrador / Dashboard
-    if (user === "sherlin123" && password === "toto-122") {
-      localStorage.setItem("isLoggedIn", "true"); // Guardar sesión
-      navigate("/dashboard");
-    } 
-    
-    // 2. Credenciales para la Pagina del Cocinero
-    else if (user === "cocinero123" && password === "1234") {
-      localStorage.setItem("isLoggedIn", "true"); // Guardar sesión
-      navigate("/cocinero");
-    } 
-    
-    // 3. Fallo de autenticación
-    else {
-      alert("Usuario o contraseña incorrectos");
-    }
-  };
-
+  
   return (
     <section className="login-section">
       <div className="login-card">

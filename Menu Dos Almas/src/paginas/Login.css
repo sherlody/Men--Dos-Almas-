@@ -27,24 +27,24 @@
 }
 
 .login-input:focus {
-  box-shadow: 0 0 0 2px #002D74;
+  box-shadow: 0 0 0 2px #d9a16a;
   background-color: #fff;
 }
 
 /* ===== BOTÓN ===== */
 .login-btn {
-  background-color: #0b3b82;
+  background-color: #bb6d20;
   transition: all 0.3s ease;
 }
 
 .login-btn:hover {
-  background-color: #1d5bbf;
+  background-color: #d9a16a;
   transform: scale(1.03);
 }
 
 /* ===== TEXTO ===== */
 .login-title {
-  color: #002D74;
+  color: #753d04;
 }
 
 .login-link {
