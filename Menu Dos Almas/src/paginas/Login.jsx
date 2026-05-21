@@ -44,12 +44,12 @@ function Login() {
     }
   };
 
-  // ✅ Verificar si ya hay sesión iniciada
+  //  Verificar si ya hay sesión iniciada
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (isLoggedIn === "true") {
       // Aquí puedes decidir a dónde redirigir según tu lógica
-      navigate("/dashboard");
+      navigate("/login");
     }
   }, [navigate]);
 
