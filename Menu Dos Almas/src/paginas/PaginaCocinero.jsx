@@ -1,83 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiOutlineLogout, HiFire, HiCheckCircle } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import './PaginaCocinero.css';
 
 function PaginaCocinero() {
   const navigate = useNavigate();
+  const [pedidos, setPedidos] = useState([]);
 
-  // Estados de ejemplo
-  const [pedidos, setPedidos] = useState([
-    { id: 1, mesa: "04", items: ["Sushi Delight", "Burger House"], estado: "pendiente" },
-    { id: 2, mesa: "01", items: ["Pizza Pepperoni"], estado: "pendiente" },
-  ]);
-
-  const cambiarEstado = (id, nuevoEstado) => {
-    setPedidos(pedidos.map(p => p.id === id ? { ...p, estado: nuevoEstado } : p));
+  // 1. Cargar los pedidos activos desde la API de Laravel
+  const cargarPedidos = () => {
+    fetch("http://127.0.0.1:8000/api/pedidos-activos") // <-- Con /api/ porque está en api.php
+      .then(res => {
+        if (!res.ok) throw new Error("Error al obtener pedidos");
+        return res.json();
+      })
+      .then(data => setPedidos(data))
+      .catch(err => console.error("Error cargando pedidos en cocina:", err));
   };
 
-  const eliminarPedido = (id) => {
-    setPedidos(pedidos.filter(p => p.id !== id));
+  // Polling: Actualiza la pantalla de cocina automáticamente cada 4 segundos
+  useEffect(() => {
+    cargarPedidos(); 
+    const intervalo = setInterval(cargarPedidos, 4000); 
+    return () => clearInterval(intervalo); 
+  }, []);
+
+  // 2. Cambiar estado en la Base de Datos al hacer clic en los botones
+  const cambiarEstadoBD = async (id, nuevoEstado) => {
+    try {
+      const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${id}/estado`, { // <-- Con /api/
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok && data.success) {
+        alert(`¡Notificación enviada! El pedido #${id} ahora está en estado: ${nuevoEstado}`);
+        cargarPedidos(); // Recargar inmediatamente la pantalla
+      } else {
+        alert("No se pudo actualizar el estado en el servidor.");
+      }
+    } catch (error) {
+      console.error("Error al conectar con el servidor:", error);
+      alert("Error de conexión al cambiar el estado del pedido.");
+    }
   };
 
-  // Función de cierre de sesión corregida según tus rutas
   const handleLogout = () => {
-    // navigate("/login") te llevará al componente <Login /> que tienes en la línea 20 de tu App.js
     navigate("/login");
   };
 
   return (
     <section className="pricing-section">
-      {/* NAVBAR SUPERIOR */}
       <nav className="cocinero-navbar">
-        <h2 className="nav-title uppercase tracking-tighter">Panel de Cocina - Dos Almas</h2>
+        <h2 className="nav-title uppercase tracking-tighter"> Cocina - Dos Almas</h2>
         <button className="btn-logout" onClick={handleLogout}>
           <HiOutlineLogout size={20} /> CERRAR SESIÓN
         </button>
       </nav>
 
       <div className="pricing-container">
-        {pedidos.map((pedido) => (
-          <div 
-            key={pedido.id} 
-            className={`pricing-card ${pedido.estado === 'preparando' ? 'card-popular' : 'card-outline'}`}
-          >
-            {/* Header de la tarjeta */}
-            <div className={`card-header ${pedido.estado === 'preparando' ? 'header-popular body-blue' : 'header-white'}`}>
-              {pedido.estado === 'preparando' && <p className="popular-badge">EN PREPARACIÓN</p>}
-              <p className="plan-name font-bold uppercase">Mesa</p>
-              <p className="price">{pedido.mesa}</p>
-              <p className="period">ORDEN #{pedido.id}</p>
-            </div>
+        {pedidos.length === 0 ? (
+          <p className="text-white text-2xl font-bold mt-10">Sin pedidos pendientes por ahora. ¡Buen trabajo!</p>
+        ) : (
+          pedidos.map((pedido) => {
+            // Convertimos el estado a minúsculas para evitar errores si Laravel responde "Pendiente" o "PENDIENTE"
+            const estadoNormalizado = pedido.estado.toLowerCase().trim();
 
-            {/* Cuerpo de la tarjeta con los botones */}
-            <div className="card-body body-blue">
-              <div className="items-container">
-                {pedido.items.map((item, index) => (
-                  <p key={index} className="feature text-white font-medium">• {item}</p>
-                ))}
+            return (
+              <div 
+                key={pedido.id} 
+                className={`pricing-card ${estadoNormalizado === 'preparando' ? 'card-popular' : 'card-outline'}`}
+              >
+                
+                <div className={`card-header ${estadoNormalizado === 'preparando' ? 'header-popular body-blue' : 'header-white'}`}>
+                  {estadoNormalizado === 'preparando' && <p className="popular-badge">EN PREPARACIÓN</p>}
+                  <p className="plan-name font-bold uppercase">Mesa</p>
+                  <p className="price">{pedido.mesa}</p>
+                  <p className="period">ORDEN #{pedido.id}</p>
+                </div>
+
+                <div className="card-body body-blue">
+                  <div className="items-container">
+                    {pedido.items.map((item, index) => (
+                      <p key={index} className="feature text-white font-medium">• {item}</p>
+                    ))}
+                  </div>
+
+                  <div className="btns-group">
+                    {/* BOTÓN COMENZAR */}
+                    <button 
+                      className={`btn ${estadoNormalizado === 'pendiente' ? 'btn-yellow' : 'btn-disabled'}`}
+                      onClick={() => cambiarEstadoBD(pedido.id, 'preparando')}
+                      disabled={estadoNormalizado !== 'pendiente'}
+                    >
+                      <HiFire /> {estadoNormalizado === 'pendiente' ? 'COMENZAR' : 'EN PROCESO'}
+                    </button>
+
+                    {/* BOTÓN ORDEN LISTA */}
+                    <button 
+                      className={`btn ${estadoNormalizado === 'preparando' ? 'btn-white' : 'btn-disabled-white'}`}
+                      // Al dar clic, pasa a entregado y se le notifica al cliente
+                      onClick={() => cambiarEstadoBD(pedido.id, 'entregado')}
+                      disabled={estadoNormalizado !== 'preparando'}
+                    >
+                      <HiCheckCircle /> ORDEN LISTA
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              <div className="btns-group">
-                <button 
-                  className={`btn ${pedido.estado === 'pendiente' ? 'btn-yellow' : 'btn-disabled'}`}
-                  onClick={() => cambiarEstado(pedido.id, 'preparando')}
-                  disabled={pedido.estado !== 'pendiente'}
-                >
-                  <HiFire /> {pedido.estado === 'pendiente' ? 'COMENZAR' : 'EN PROCESO'}
-                </button>
-
-                <button 
-                  className={`btn ${pedido.estado === 'preparando' ? 'btn-white' : 'btn-disabled-white'}`}
-                  onClick={() => eliminarPedido(pedido.id)}
-                  disabled={pedido.estado !== 'preparando'}
-                >
-                  <HiCheckCircle /> ORDEN LISTA
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })
+        )}
       </div>
     </section>
   );
