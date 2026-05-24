@@ -17,9 +17,12 @@ function DashboardCliente() {
   const [pestaña, setPestaña] = useState('carrito');
   const [solicitandoPago, setSolicitandoPago] = useState(false);
 
-  // CARGAR DATOS (Sin prefijo API en la URL)
+  // NUEVOS ESTADOS PARA RASTREAR EL PEDIDO EN COCINA
+  const [pedidoActivoId, setPedidoActivoId] = useState(null);
+  const [estadoPedido, setEstadoPedido] = useState(null);
+
+  // CARGAR DATOS 
   useEffect(() => {
-    // Si tu ruta en Laravel es Route::get('/menu', ...), usamos /menu
     fetch("http://127.0.0.1:8000/api/menu") 
       .then(response => response.json())
       .then(data => {
@@ -31,6 +34,37 @@ function DashboardCliente() {
         setLoading(false);
       });
   }, []);
+
+  // EFECTO PARA RASTREAR EL ESTADO DEL PEDIDO (POLLING)
+  useEffect(() => {
+    let intervalo;
+
+    // Solo buscamos si tenemos un pedido que no ha sido entregado
+    if (pedidoActivoId && estadoPedido !== 'entregado') {
+      intervalo = setInterval(() => {
+        fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`)
+          .then(res => res.json())
+          .then(data => {
+            // Si el estado cambió en la base de datos...
+            if (data.estado && data.estado !== estadoPedido) {
+              setEstadoPedido(data.estado); // Actualizamos nuestro estado interno
+
+              // Mostramos la notificación al cliente
+              if (data.estado === 'preparando') {
+                alert("👨‍🍳 ¡El cocinero ha comenzado a preparar tu orden!");
+              } else if (data.estado === 'entregado') {
+                alert("✅ ¡Tu orden está lista y en camino a tu mesa!");
+                setPedidoActivoId(null); // Detenemos la búsqueda porque ya terminó
+              }
+            }
+          })
+          .catch(err => console.error("Error al consultar estado:", err));
+      }, 2000); // Consulta cada 2 segundos
+    }
+
+    // Limpiamos el intervalo si el componente se desmonta o el estado cambia
+    return () => clearInterval(intervalo);
+  }, [pedidoActivoId, estadoPedido]);
 
   // Lógica de agregar con cantidad acumulada (x1, x2...)
   const agregarAlPedido = (item) => {
@@ -55,58 +89,63 @@ function DashboardCliente() {
     });
   };
 
- const manejarOrden = async () => {
-  if (pedido.length === 0) return;
+  const manejarOrden = async () => {
+    if (pedido.length === 0) return;
 
-  // Calculamos el total de este pedido específico
-  const totalPedido = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
+    // Calculamos el total de este pedido específico
+    const totalPedido = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
 
-  // Preparamos los datos a enviar
-  const datosOrden = {
-    id_mesa: parseInt(mesaId) || 1, // Si no hay mesaId en la URL, asignamos 1 por defecto temporalmente
-    total: totalPedido,
-    productos: pedido // Mandamos todo el arreglo de productos
-  };
+    // Preparamos los datos a enviar
+    const datosOrden = {
+      id_mesa: parseInt(mesaId) || 1, 
+      total: totalPedido,
+      productos: pedido 
+    };
 
-  try {
-    const respuesta = await fetch("http://127.0.0.1:8000/api/ordenar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(datosOrden)
-    });
-
-    const data = await respuesta.json();
-
-    if (respuesta.ok && data.success) {
-      // Si el backend guardó el pedido, actualizamos el historial en React
-      setHistorial(prev => {
-        let nuevoHistorial = [...prev];
-        pedido.forEach(item => {
-          const idx = nuevoHistorial.findIndex(h => h.id_producto === item.id_producto);
-          if (idx !== -1) nuevoHistorial[idx].cantidad += item.cantidad;
-          else nuevoHistorial.push({ ...item });
-        });
-        return nuevoHistorial;
+    try {
+      const respuesta = await fetch("http://127.0.0.1:8000/api/ordenar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(datosOrden)
       });
-      
-      alert(data.mensaje); // "¡Orden enviada a cocina exitosamente!"
-      setPedido([]); // Limpiamos carrito
-      setPestaña('consumos'); // Cambiamos de pestaña
-    } else {
-      alert("Error del servidor: " + data.mensaje);
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok && data.success) {
+        // Actualizamos el historial en React
+        setHistorial(prev => {
+          let nuevoHistorial = [...prev];
+          pedido.forEach(item => {
+            const idx = nuevoHistorial.findIndex(h => h.id_producto === item.id_producto);
+            if (idx !== -1) nuevoHistorial[idx].cantidad += item.cantidad;
+            else nuevoHistorial.push({ ...item });
+          });
+          return nuevoHistorial;
+        });
+        
+        alert(data.mensaje); // "¡Orden enviada a cocina exitosamente!"
+        setPedido([]); // Limpiamos carrito
+        setPestaña('consumos'); // Cambiamos de pestaña
+
+        // NUEVO: Guardamos el ID del pedido para rastrearlo
+        setPedidoActivoId(data.id_pedido);
+        setEstadoPedido('pendiente');
+        
+      } else {
+        alert("Error del servidor: " + data.mensaje);
+      }
+    } catch (error) {
+      console.error("Error enviando el pedido:", error);
+      alert("Hubo un problema de conexión al enviar la orden.");
     }
-  } catch (error) {
-    console.error("Error enviando el pedido:", error);
-    alert("Hubo un problema de conexión al enviar la orden.");
-  }
-};
+  };
 
   const manejarPago = () => {
     setSolicitandoPago(true);
-    alert("🔔 El mesero ha sido notificado para la cuenta en la Mesa " + (mesaId || "00"));
+    alert(" El mesero ha sido notificado para la cuenta en la Mesa " + (mesaId || "00"));
   };
 
   // Cálculos de totales con parseFloat para asegurar que el precio de la DB sea número
@@ -137,7 +176,7 @@ function DashboardCliente() {
         {/* PARTE IZQUIERDA: CARTA */}
         <div className="w-[55%] h-full overflow-y-auto pr-2 space-y-6 custom-scrollbar shrink-0">
           
-          {/* Lo más pedido (Preferencia) */}
+          {/* Lo más pedido */}
           {secciones.preferencias?.length > 0 && (
             <section className="space-y-4">
               <div className="w-full bg-[#ff7e21] rounded-[30px] p-5 text-white shadow-lg">

@@ -13,3 +13,4 @@ Route::post('/ordenar', [PedidosController::class, 'procesarOrden']);
 
 Route::get('/pedidos-activos', [PedidosController::class, 'obtenerPedidosActivos']);
 Route::put('/pedido/{id}/estado', [PedidosController::class, 'actualizarEstado']);
+Route::get('/pedido/{id}/estado', [PedidosController::class, 'verEstadoPedido']);

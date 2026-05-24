@@ -9,7 +9,7 @@ function PaginaCocinero() {
 
   // 1. Cargar los pedidos activos desde la API de Laravel
   const cargarPedidos = () => {
-    fetch("http://127.0.0.1:8000/api/pedidos-activos") // <-- Con /api/ porque está en api.php
+    fetch("http://127.0.0.1:8000/api/pedidos-activos") 
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener pedidos");
         return res.json();
@@ -28,7 +28,7 @@ function PaginaCocinero() {
   // 2. Cambiar estado en la Base de Datos al hacer clic en los botones
   const cambiarEstadoBD = async (id, nuevoEstado) => {
     try {
-      const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${id}/estado`, { // <-- Con /api/
+      const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${id}/estado`, { 
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -40,8 +40,8 @@ function PaginaCocinero() {
       const data = await respuesta.json();
 
       if (respuesta.ok && data.success) {
-        alert(`¡Notificación enviada! El pedido #${id} ahora está en estado: ${nuevoEstado}`);
-        cargarPedidos(); // Recargar inmediatamente la pantalla
+        // Se eliminó el alert de aquí para que no le salte al cocinero
+        cargarPedidos(); // Recargar inmediatamente la pantalla en silencio
       } else {
         alert("No se pudo actualizar el estado en el servidor.");
       }
@@ -105,7 +105,7 @@ function PaginaCocinero() {
                     {/* BOTÓN ORDEN LISTA */}
                     <button 
                       className={`btn ${estadoNormalizado === 'preparando' ? 'btn-white' : 'btn-disabled-white'}`}
-                      // Al dar clic, pasa a entregado y se le notifica al cliente
+                      // Al dar clic, pasa a entregado y se le notifica al cliente desde su propio componente
                       onClick={() => cambiarEstadoBD(pedido.id, 'entregado')}
                       disabled={estadoNormalizado !== 'preparando'}
                     >

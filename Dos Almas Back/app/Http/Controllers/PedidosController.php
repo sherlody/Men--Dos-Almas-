@@ -108,4 +108,17 @@ class PedidosController extends Controller
 
         return response()->json(['success' => false, 'mensaje' => 'Pedido no encontrado'], 404);
     }
+
+
+// Función para que el DashboardCliente consulte cómo va su pedido
+    public function verEstadoPedido($id)
+    {
+        $pedido = Pedido::find($id);
+        
+        if ($pedido) {
+            return response()->json(['estado' => $pedido->estado]);
+        }
+
+        return response()->json(['error' => 'Pedido no encontrado'], 404);
+    }
 }
