@@ -114,7 +114,7 @@ function DashboardHome() {
             <div className="h-40 overflow-hidden rounded-xl mb-4">
 
               <img
-                src={`http://127.0.0.1:8000/${producto.imagen}`}
+                src={producto.imagens}
                 alt=""
                 className="w-full h-full object-cover"
               />

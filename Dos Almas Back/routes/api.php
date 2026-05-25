@@ -28,3 +28,4 @@ Route::get('/usuarios', [UsuariosController::class, 'index']);
 Route::post('/usuarios', [UsuariosController::class, 'store']);
 Route::put('/usuarios/{id}', [UsuariosController::class, 'update']);
 Route::get('/roles', [UsuariosController::class, 'roles']);
+Route::put('/pedido/{id}/solicitar-pago', [PedidosController::class, 'solicitarPago']);

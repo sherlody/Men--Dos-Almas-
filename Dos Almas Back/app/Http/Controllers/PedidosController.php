@@ -98,6 +98,7 @@ class PedidosController extends Controller
             ->whereIn('estado', [
                 'pendiente',
                 'preparando',
+                'listo',
                 'entregado'
             ])
             ->get()
@@ -155,6 +156,7 @@ class PedidosController extends Controller
         $estadosValidos = [
             'pendiente',
             'preparando',
+            'listo',
             'entregado',
             'pagado'
         ];
@@ -201,5 +203,28 @@ class PedidosController extends Controller
         }
 
         return response()->json(['error' => 'Pedido no encontrado'], 404);
+    }
+
+        public function solicitarPago($id)
+    {
+        $pedido = Pedido::find($id);
+
+        if (!$pedido) {
+
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Pedido no encontrado'
+            ], 404);
+
+        }
+
+        $pedido->solicita_pago = true;
+
+        $pedido->save();
+
+        return response()->json([
+            'success' => true,
+            'mensaje' => 'Mesero notificado'
+        ]);
     }
 }

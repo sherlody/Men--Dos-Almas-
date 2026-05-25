@@ -105,8 +105,8 @@ function PaginaCocinero() {
                     {/* BOTÓN ORDEN LISTA */}
                     <button 
                       className={`btn ${estadoNormalizado === 'preparando' ? 'btn-white' : 'btn-disabled-white'}`}
-                      // Al dar clic, pasa a entregado y se le notifica al cliente desde su propio componente
-                      onClick={() => cambiarEstadoBD(pedido.id, 'entregado')}
+                      // Al dar clic, pasa a listo y se le notifica al cliente desde su propio componente
+                      onClick={() => cambiarEstadoBD(pedido.id, 'listo')}
                       disabled={estadoNormalizado !== 'preparando'}
                     >
                       <HiCheckCircle /> ORDEN LISTA

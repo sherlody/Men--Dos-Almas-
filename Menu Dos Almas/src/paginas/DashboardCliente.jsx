@@ -61,6 +61,14 @@ function DashboardCliente() {
                 );
                 }
                 // =========================
+                // LISTO
+                // =========================
+                if (nuevoEstado === 'listo') {
+                Notify.info(
+                    "✅ ¡Tu orden está lista para ser entregada!"
+                );
+                }
+                // =========================
                 // ENTREGADO
                 // =========================
                 else if (nuevoEstado === 'entregado') {
@@ -82,6 +90,57 @@ function DashboardCliente() {
     }
     return () => clearInterval(intervalo);
     }, [pedidoActivoId, estadoPedido]);
+
+    // =====================================
+    // VERIFICAR SI EL PEDIDO YA FUE PAGADO
+    // =====================================
+    useEffect(() => {
+
+    let intervalo;
+
+    if (pedidoActivoId) {
+
+        intervalo = setInterval(async () => {
+
+        try {
+
+            const respuesta = await fetch(
+
+            `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`
+
+            );
+
+            const data = await respuesta.json();
+
+            if (!data.estado) return;
+
+            const estado = data.estado.toLowerCase();
+
+            if (estado === 'pagado') {
+
+            alert(
+                "✅ Tu cuenta ya fue pagada. Gracias por visitar Dos Almas ☕"
+            );
+
+            setPedidoActivoId(null);
+
+            clearInterval(intervalo);
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+        }, 3000);
+
+    }
+
+    return () => clearInterval(intervalo);
+
+    }, [pedidoActivoId]);
 
   // Lógica de agregar con cantidad acumulada (x1, x2...)
   const agregarAlPedido = (item) => {
@@ -160,10 +219,30 @@ function DashboardCliente() {
     }
   };
 
-  const manejarPago = () => {
-    setSolicitandoPago(true);
-    Notify.info(" El mesero ha sido notificado para la cuenta en la Mesa " + (mesaId || "00"));
-  };
+  const manejarPago = async () => {
+    try {
+        const respuesta = await fetch(
+        `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/solicitar-pago`,
+        {
+            method: "PUT",
+            headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+            }
+        }
+        );
+        const data = await respuesta.json();
+        if (respuesta.ok && data.success) {
+        setSolicitandoPago(true);
+        Notify.success(
+            "✅ El mesero ha sido notificado para cobrar la cuenta."
+        );
+        }
+    } catch (error) {
+        console.error(error);
+        Notify.failure("Error notificando al mesero.");
+    }
+    };
 
   // Cálculos de totales con parseFloat para asegurar que el precio de la DB sea número
   const totalActual = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
@@ -318,7 +397,7 @@ function DashboardCliente() {
     return (
       <div key={item.id_producto} className="min-w-[170px] bg-white rounded-[25px] overflow-hidden shadow-md border shrink-0 hover:scale-105 transition-transform duration-300">
         <div className="h-24 w-full relative bg-gray-100 flex items-center justify-center">
-          {item.imagen ? <img src={`${window.location.origin}/${item.imagen}`} className="w-full h-full object-cover" alt={item.nombre_producto} /> : <span className="text-2xl">☕</span>}
+          {item.imagen ? <img src={item.imagen} className="w-full h-full object-cover" alt={item.nombre_producto} /> : <span className="text-2xl">☕</span>}
         </div>
         <div className="p-3">
           <h4 className="text-[11px] font-bold text-blue-900 truncate">{item.nombre_producto}</h4>

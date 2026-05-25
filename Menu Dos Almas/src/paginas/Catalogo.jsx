@@ -306,7 +306,7 @@ function Catalogo() {
             <div className="h-72 bg-gray-100">
 
               <img
-                src={`${window.location.origin}/${producto.imagen}`}
+                src={producto.imagen}
                 alt={producto.nombre_producto}
                 className="w-full h-full object-cover"
               />

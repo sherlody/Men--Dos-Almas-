@@ -197,7 +197,7 @@ function PaginaMesero() {
               <div
                 key={pedido.id}
                 className={`pricing-card 
-                  ${estadoNormalizado === 'entregado'
+                  ${estadoNormalizado === 'listo'
                     ? 'card-popular'
                     : 'card-outline'
                   }`}
@@ -205,17 +205,17 @@ function PaginaMesero() {
 
                 {/* HEADER */}
                 <div className={`card-header 
-                  ${estadoNormalizado === 'entregado'
+                  ${estadoNormalizado === 'listo'
                     ? 'header-popular body-blue'
                     : 'header-white'
                   }`}
                 >
 
-                  {estadoNormalizado === 'entregado' && (
+                  {estadoNormalizado === 'listo' && (
 
                     <p className="popular-badge">
 
-                      ENTREGADO
+                      LISTO
 
                     </p>
 
@@ -262,6 +262,16 @@ function PaginaMesero() {
 
                   </div>
 
+                  {pedido.solicita_pago && (
+
+                    <div className="bg-yellow-400 text-black font-bold p-2 rounded-xl mb-4 text-center animate-pulse">
+
+                        🔔 ESTA MESA SOLICITA LA CUENTA
+
+                    </div>
+
+                    )}
+
                   {/* BOTONES */}
                   <div className="btns-group">
 
@@ -269,7 +279,7 @@ function PaginaMesero() {
                     <button
 
                       className={`btn 
-                        ${estadoNormalizado === 'preparando'
+                        ${estadoNormalizado === 'listo'
                           ? 'btn-yellow'
                           : 'btn-disabled'
                         }`}
@@ -282,7 +292,7 @@ function PaginaMesero() {
                       }
 
                       disabled={
-                        estadoNormalizado !== 'preparando'
+                        estadoNormalizado !== 'listo'
                       }
                     >
 

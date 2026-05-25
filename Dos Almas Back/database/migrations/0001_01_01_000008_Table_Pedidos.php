@@ -19,12 +19,16 @@ return new class extends Migration
             $table->enum('estado', [
                 'pendiente',
                 'preparando',
+                'listo',
                 'entregado',
                 'pagado',
                 'cancelado'
             ])->default('pendiente');
 
             $table->decimal('total', 10, 2)->default(0.00);
+
+            $table->boolean('solicita_pago')
+                  ->default(false);
 
             $table->foreign('id_mesa')
                   ->references('id_mesa')
