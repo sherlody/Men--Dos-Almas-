@@ -10,6 +10,7 @@ import AjustesMenu from './paginas/AjustesMenu';
 import Usuarios from './paginas/Usuarios';
 import DashboardCliente from './paginas/DashboardCliente';
 import PaginaCocinero from './paginas/PaginaCocinero';
+import PaginaMesero from './paginas/PaginaMesero';
 
 function App() {
 
@@ -24,7 +25,7 @@ function App() {
         <Route path="/cocinero" element={<PaginaCocinero />} />
         <Route path="/dashboard-cliente/:mesaId" element={<DashboardCliente />} />
         <Route path="/pagina-cocinero" element={<PaginaCocinero />} />
-
+        <Route path="/mesero" element={<PaginaMesero />} />
         {/* DASHBOARD (PADRE) */}
         <Route path="/dashboard" element={<DashboardEmpleado />}>
           <Route index element={<DashboardInicio />} /> {/* /dashboard */}

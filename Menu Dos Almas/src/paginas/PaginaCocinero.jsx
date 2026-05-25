@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HiOutlineLogout, HiFire, HiCheckCircle } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { Notify } from "notiflix";
 import './PaginaCocinero.css';
 
 function PaginaCocinero() {
@@ -40,14 +41,13 @@ function PaginaCocinero() {
       const data = await respuesta.json();
 
       if (respuesta.ok && data.success) {
-        // Se eliminó el alert de aquí para que no le salte al cocinero
         cargarPedidos(); // Recargar inmediatamente la pantalla en silencio
       } else {
-        alert("No se pudo actualizar el estado en el servidor.");
+        Notify.failure("No se pudo actualizar el estado en el servidor.");
       }
     } catch (error) {
       console.error("Error al conectar con el servidor:", error);
-      alert("Error de conexión al cambiar el estado del pedido.");
+      Notify.failure("Error de conexión al cambiar el estado del pedido.");
     }
   };
 

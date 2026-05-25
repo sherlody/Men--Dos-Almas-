@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UsuariosSeeder::class,
             CategoriasSeeder::class,
             ProductosSeeder::class,
+            MesasSeeder::class,
         ]);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pedido;
 use App\Models\DetallePedido;
-use App\Models\Mesa; 
+use App\Models\Mesa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +14,7 @@ class PedidosController extends Controller
     public function procesarOrden(Request $request)
     {
         $request->validate([
-            'id_mesa' => 'required|integer', 
+            'id_mesa' => 'required|integer',
             'total' => 'required|numeric',
             'productos' => 'required|array'
         ]);
@@ -32,17 +32,17 @@ class PedidosController extends Controller
             }
 
             $pedido = new Pedido();
-            $pedido->id_mesa = $mesa->id_mesa; 
+            $pedido->id_mesa = $mesa->id_mesa;
             $pedido->total = $request->total;
-            $pedido->estado = 'pendiente'; 
+            $pedido->estado = 'pendiente';
             $pedido->save();
 
             foreach ($request->productos as $item) {
                 $detalle = new DetallePedido();
-                $detalle->id_pedido = $pedido->id_pedido; 
+                $detalle->id_pedido = $pedido->id_pedido;
                 $detalle->id_producto = $item['id_producto'];
                 $detalle->cantidad = $item['cantidad'];
-                $detalle->precio_unitario = floatval($item['precio']); 
+                $detalle->precio_unitario = floatval($item['precio']);
                 $detalle->save();
             }
 
@@ -91,6 +91,47 @@ class PedidosController extends Controller
         return response()->json($pedidos);
     }
 
+    // Función para que el mesero vea los pedidos que ya están en preparación o entregados
+    public function obtenerPedidosMesero()
+    {
+        $pedidos = Pedido::with(['detalles.producto', 'mesa'])
+            ->whereIn('estado', [
+                'pendiente',
+                'preparando',
+                'entregado'
+            ])
+            ->get()
+            ->map(function($pedido) {
+
+                return [
+                    'id' => $pedido->id_pedido,
+
+                    'mesa' => str_pad(
+                        $pedido->mesa->num_mesa,
+                        2,
+                        '0',
+                        STR_PAD_LEFT
+                    ),
+
+                    'estado' => $pedido->estado,
+
+                    'items' => $pedido->detalles->map(function($d) {
+
+                        return $d->cantidad .
+                            'x ' .
+                            (
+                                $d->producto
+                                ? $d->producto->nombre_producto
+                                : 'Producto eliminado'
+                            );
+
+                    })
+                ];
+            });
+
+        return response()->json($pedidos);
+    }
+
     // 2. Actualizar el estado del pedido al darle clic en "Comenzar" u "Orden Lista"
     public function actualizarEstado(Request $request, $id)
     {
@@ -98,15 +139,55 @@ class PedidosController extends Controller
             'estado' => 'required|string'
         ]);
 
-        $pedido = Pedido::find($id);
-        
-        if($pedido) {
-            $pedido->estado = $request->estado;
-            $pedido->save();
-            return response()->json(['success' => true]);
+        $pedido = Pedido::with('mesa')->find($id);
+
+        if (!$pedido) {
+
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Pedido no encontrado'
+            ], 404);
         }
 
-        return response()->json(['success' => false, 'mensaje' => 'Pedido no encontrado'], 404);
+        // =========================
+        // ESTADOS VALIDOS
+        // =========================
+        $estadosValidos = [
+            'pendiente',
+            'preparando',
+            'entregado',
+            'pagado'
+        ];
+
+        if (!in_array($request->estado, $estadosValidos)) {
+
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Estado inválido'
+            ], 400);
+        }
+
+        // =========================
+        // ACTUALIZAR PEDIDO
+        // =========================
+        $pedido->estado = $request->estado;
+
+        $pedido->save();
+
+        // =========================
+        // SI YA SE PAGÓ:
+        // LIBERAR MESA
+        // =========================
+        if ($request->estado === 'pagado') {
+
+            $pedido->mesa->disponible = true;
+
+            $pedido->mesa->save();
+        }
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 
 
@@ -114,7 +195,7 @@ class PedidosController extends Controller
     public function verEstadoPedido($id)
     {
         $pedido = Pedido::find($id);
-        
+
         if ($pedido) {
             return response()->json(['estado' => $pedido->estado]);
         }

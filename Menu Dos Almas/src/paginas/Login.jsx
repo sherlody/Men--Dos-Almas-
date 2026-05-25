@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Notify } from "notiflix";
 import "./login.css";
 
 function Login() {
@@ -36,11 +37,11 @@ function Login() {
           navigate("/mesero");
         }
       } else {
-        alert(data.message);
+        Notify.failure(data.message);
       }
     } catch (error) {
       console.error(error);
-      alert("Error del servidor");
+      Notify.failure("Error del servidor");
     }
   };
 

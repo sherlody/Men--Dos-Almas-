@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { HiStar, HiOutlineLogout, HiTrash, HiRefresh, HiCreditCard, HiPlus, HiMinus } from "react-icons/hi";
 import { useNavigate, useParams } from "react-router-dom"; 
+import { Notify } from "notiflix";
 import './PaginaCocinero.css'; 
 
 function DashboardCliente() {
@@ -39,32 +40,48 @@ function DashboardCliente() {
   useEffect(() => {
     let intervalo;
 
-    // Solo buscamos si tenemos un pedido que no ha sido entregado
     if (pedidoActivoId && estadoPedido !== 'entregado') {
-      intervalo = setInterval(() => {
-        fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`)
-          .then(res => res.json())
-          .then(data => {
-            // Si el estado cambió en la base de datos...
-            if (data.estado && data.estado !== estadoPedido) {
-              setEstadoPedido(data.estado); // Actualizamos nuestro estado interno
+        intervalo = setInterval(() => {
+        fetch(
+            `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`
+        )
+            .then(res => res.json())
+            .then(data => {
+            if (!data.estado) return;
+            const nuevoEstado =
+                data.estado.toLowerCase().trim();
+            if (nuevoEstado !== estadoPedido) {
+                setEstadoPedido(nuevoEstado);
+                // =========================
+                // PREPARANDO
+                // =========================
+                if (nuevoEstado === 'preparando') {
+                Notify.info(
+                    "👨‍🍳 ¡El cocinero ha comenzado a preparar tu orden!"
+                );
+                }
+                // =========================
+                // ENTREGADO
+                // =========================
+                else if (nuevoEstado === 'entregado') {
+                Notify.info(
+                    "✅ ¡Tu orden ya fue entregada!"
+                );
+                setPedidoActivoId(null);
 
-              // Mostramos la notificación al cliente
-              if (data.estado === 'preparando') {
-                alert("👨‍🍳 ¡El cocinero ha comenzado a preparar tu orden!");
-              } else if (data.estado === 'entregado') {
-                alert("✅ ¡Tu orden está lista y en camino a tu mesa!");
-                setPedidoActivoId(null); // Detenemos la búsqueda porque ya terminó
-              }
+                }
             }
-          })
-          .catch(err => console.error("Error al consultar estado:", err));
-      }, 2000); // Consulta cada 2 segundos
+            })
+            .catch(err => {
+            console.error(
+                "Error al consultar estado:",
+                err
+            );
+            });
+        }, 2000);
     }
-
-    // Limpiamos el intervalo si el componente se desmonta o el estado cambia
     return () => clearInterval(intervalo);
-  }, [pedidoActivoId, estadoPedido]);
+    }, [pedidoActivoId, estadoPedido]);
 
   // Lógica de agregar con cantidad acumulada (x1, x2...)
   const agregarAlPedido = (item) => {
@@ -126,7 +143,7 @@ function DashboardCliente() {
           return nuevoHistorial;
         });
         
-        alert(data.mensaje); // "¡Orden enviada a cocina exitosamente!"
+        Notify.success(data.mensaje); // "¡Orden enviada a cocina exitosamente!"
         setPedido([]); // Limpiamos carrito
         setPestaña('consumos'); // Cambiamos de pestaña
 
@@ -135,17 +152,17 @@ function DashboardCliente() {
         setEstadoPedido('pendiente');
         
       } else {
-        alert("Error del servidor: " + data.mensaje);
+        Notify.failure("Error del servidor: " + data.mensaje);
       }
     } catch (error) {
       console.error("Error enviando el pedido:", error);
-      alert("Hubo un problema de conexión al enviar la orden.");
+      Notify.failure("Hubo un problema de conexión al enviar la orden.");
     }
   };
 
   const manejarPago = () => {
     setSolicitandoPago(true);
-    alert(" El mesero ha sido notificado para la cuenta en la Mesa " + (mesaId || "00"));
+    Notify.info(" El mesero ha sido notificado para la cuenta en la Mesa " + (mesaId || "00"));
   };
 
   // Cálculos de totales con parseFloat para asegurar que el precio de la DB sea número
@@ -301,7 +318,7 @@ function DashboardCliente() {
     return (
       <div key={item.id_producto} className="min-w-[170px] bg-white rounded-[25px] overflow-hidden shadow-md border shrink-0 hover:scale-105 transition-transform duration-300">
         <div className="h-24 w-full relative bg-gray-100 flex items-center justify-center">
-          {item.imagen ? <img src={item.imagen} className="w-full h-full object-cover" alt={item.nombre_producto} /> : <span className="text-2xl">☕</span>}
+          {item.imagen ? <img src={`${window.location.origin}/${item.imagen}`} className="w-full h-full object-cover" alt={item.nombre_producto} /> : <span className="text-2xl">☕</span>}
         </div>
         <div className="p-3">
           <h4 className="text-[11px] font-bold text-blue-900 truncate">{item.nombre_producto}</h4>

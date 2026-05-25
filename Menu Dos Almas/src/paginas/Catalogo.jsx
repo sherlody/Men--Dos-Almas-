@@ -1,136 +1,373 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../componentes/Modal";
+import { Notify } from "notiflix";
 
 function Catalogo() {
-    const [openModal, setOpenModal] = useState(false);
-    const camposProducto = [
-  {
-    label: "Nombre producto",
-    type: "text",
-  },
-  {
-    label: "Precio",
-    type: "number",
-  },
-  {
-    label: "Imagen",
-    type: "text",
-  },
-];
-  const productos = [
+
+  // =========================
+  // ESTADOS
+  // =========================
+  const [productos, setProductos] = useState([]);
+
+  const [categorias, setCategorias] = useState([]);
+
+  const [openModal, setOpenModal] = useState(false);
+
+  const [productoEditando, setProductoEditando] = useState(null);
+
+  const [formData, setFormData] = useState({
+    clave: "",
+    nombre_producto: "",
+    precio: "",
+    imagen: "",
+    id_categoria: ""
+  });
+
+  // =========================
+  // CARGAR PRODUCTOS
+  // =========================
+  const cargarProductos = async () => {
+
+    try {
+
+      const respuesta = await fetch(
+        "http://127.0.0.1:8000/api/productos-obtener"
+      );
+
+      const data = await respuesta.json();
+
+      setProductos(data);
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando productos:",
+        error
+      );
+
+    }
+  };
+
+  // =========================
+  // CARGAR CATEGORIAS
+  // =========================
+  const cargarCategorias = async () => {
+
+    try {
+
+      const respuesta = await fetch(
+        "http://127.0.0.1:8000/api/categorias"
+      );
+
+      const data = await respuesta.json();
+
+      setCategorias(data);
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando categorías:",
+        error
+      );
+
+    }
+  };
+
+  // =========================
+  // USE EFFECT
+  // =========================
+  useEffect(() => {
+
+    cargarProductos();
+
+    cargarCategorias();
+
+  }, []);
+
+  // =========================
+  // NUEVO PRODUCTO
+  // =========================
+  const nuevoProducto = () => {
+
+    setProductoEditando(null);
+
+    setFormData({
+      clave: "",
+      nombre_producto: "",
+      precio: "",
+      imagen: "",
+      id_categoria: ""
+    });
+
+    setOpenModal(true);
+  };
+
+  // =========================
+  // EDITAR PRODUCTO
+  // =========================
+  const editarProducto = (producto) => {
+
+    setProductoEditando(producto);
+
+    setFormData({
+      clave: producto.clave || "",
+      nombre_producto:
+        producto.nombre_producto || "",
+      precio: producto.precio || "",
+      imagen: producto.imagen || "",
+      id_categoria:
+        producto.id_categoria || ""
+    });
+
+    setOpenModal(true);
+  };
+
+  // =========================
+  // GUARDAR PRODUCTO
+  // =========================
+  const guardarProducto = async (e) => {
+
+    e.preventDefault();
+
+    try {
+
+      let url =
+        "http://127.0.0.1:8000/api/productos-guardar";
+
+      let metodo = "POST";
+
+      // EDITAR
+      if (productoEditando) {
+
+        url =
+          `http://127.0.0.1:8000/api/productos-editar/${productoEditando.id_producto}`;
+
+        metodo = "PUT";
+      }
+
+      const respuesta = await fetch(url, {
+
+        method: metodo,
+
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+
+        body: JSON.stringify(formData)
+
+      });
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok) {
+
+        Notify.success(
+          productoEditando
+            ? "Producto actualizado"
+            : "Producto agregado"
+        );
+
+        setOpenModal(false);
+
+        cargarProductos();
+
+      } else {
+
+        Notify.failure(
+          data.message ||
+          "Error al guardar"
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      Notify.failure("Error de conexión");
+
+    }
+  };
+
+  // =========================
+  // CAMPOS DEL MODAL
+  // =========================
+  const camposProducto = [
+
     {
-      id: 1,
-      img: "https://images.unsplash.com/photo-1646753522408-077ef9839300",
-      nombre: "Producto 1",
-      precio: 149,
+      label: "Clave",
+      type: "text",
+      value: formData.clave,
+      onChange: (valor) =>
+        setFormData({
+          ...formData,
+          clave: valor
+        })
     },
+
     {
-      id: 2,
-      img: "https://images.unsplash.com/photo-1651950519238-15835722f8bb",
-      nombre: "Producto 2",
-      precio: 149,
+      label: "Nombre producto",
+      type: "text",
+      value: formData.nombre_producto,
+      onChange: (valor) =>
+        setFormData({
+          ...formData,
+          nombre_producto: valor
+        })
     },
+
     {
-      id: 3,
-      img: "https://images.unsplash.com/photo-1651950537598-373e4358d320",
-      nombre: "Producto 3",
-      precio: 149,
+      label: "Precio",
+      type: "number",
+      value: formData.precio,
+      onChange: (valor) =>
+        setFormData({
+          ...formData,
+          precio: valor
+        })
     },
+
     {
-      id: 4,
-      img: "https://images.unsplash.com/photo-1651950540805-b7c71869e689",
-      nombre: "Producto 4",
-      precio: 149,
+      label: "Imagen",
+      type: "text",
+      placeholder:
+        "URL o ruta de imagen",
+      value: formData.imagen,
+      onChange: (valor) =>
+        setFormData({
+          ...formData,
+          imagen: valor
+        })
     },
+
     {
-      id: 5,
-      img: "https://images.unsplash.com/photo-1649261191624-ca9f79ca3fc6",
-      nombre: "Producto 5",
-      precio: 149,
-    },
-    {
-      id: 6,
-      img: "https://images.unsplash.com/photo-1649261191606-cb2496e97eee",
-      nombre: "Producto 6",
-      precio: 149,
-    },
+      label: "Categoría",
+      type: "select",
+      value: formData.id_categoria,
+      options: categorias,
+      onChange: (valor) =>
+        setFormData({
+          ...formData,
+          id_categoria: valor
+        })
+    }
   ];
 
   return (
+
     <div className="p-10 bg-gray-100 min-h-screen max-w-7xl mx-auto">
-      {/* TITULO */}
+
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-10">
-        <h1 className="font-bold text-4xl mb-2">
-          Catalogo de Productos
+
+        <h1 className="font-bold text-4xl">
+          Catálogo de Productos
         </h1>
-      
-        {/* BOTON AGREGAR */}
-        <button onClick={() => setOpenModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-8 hover:bg-blue-700 transition">
+
+        <button
+          onClick={nuevoProducto}
+          className="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition"
+        >
           Agregar nuevo producto
         </button>
-        {openModal && (
-        <Modal
-          titulo="Nuevo producto"
-          campos={camposProducto}
-          onClose={() => setOpenModal(false)}
-          onSubmit={(e) => {
-            e.preventDefault();
-            alert("Producto guardado");
-          }}
-        />
-      )}
+
       </div>
 
+      {/* MODAL */}
+      {openModal && (
+
+        <Modal
+          titulo={
+            productoEditando
+              ? "Editar producto"
+              : "Nuevo producto"
+          }
+          campos={camposProducto}
+          onClose={() =>
+            setOpenModal(false)
+          }
+          onSubmit={guardarProducto}
+        />
+
+      )}
 
       {/* GRID */}
-      <div className="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
+      <div className="grid grid-cols-4 gap-8">
+
         {productos.map((producto) => (
+
           <div
-            key={producto.id}
+            key={producto.id_producto}
             className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition duration-300"
           >
-            
+
             {/* IMAGEN */}
-            <div className="h-72">
+            <div className="h-72 bg-gray-100">
+
               <img
-                src={producto.img}
-                alt="producto"
-                className=" h-full object-cover"
+                src={`${window.location.origin}/${producto.imagen}`}
+                alt={producto.nombre_producto}
+                className="w-full h-full object-cover"
               />
+
             </div>
 
             {/* CONTENIDO */}
             <div className="p-5">
-              
+
+              {/* CATEGORIA */}
               <p className="text-gray-400 text-xs uppercase mb-1">
-                Brand
+
+                {producto.categoria?.nombre_categoria ||
+                  "Sin categoría"}
+
               </p>
 
+              {/* NOMBRE */}
               <h2 className="text-lg font-bold text-gray-800">
-                {producto.nombre}
+
+                {producto.nombre_producto}
+
               </h2>
 
-              {/* PRECIO + BOTON */}
-              <div className="flex items-center justify-between mt-4">
-                
-                <div>
-                  <span className="text-lg font-bold text-black">
-                    ${producto.precio}
-                  </span>
-                </div>
+              {/* CLAVE */}
+              <p className="text-sm text-gray-500 mt-1">
 
-                <button onClick={() => setOpenModal(true)} className="border px-3 py-1 rounded-lg text-sm hover:bg-gray-100 transition">
+                Clave:
+                {" "}
+                {producto.clave}
+
+              </p>
+
+              {/* PRECIO */}
+              <div className="flex items-center justify-between mt-4">
+
+                <span className="text-lg font-bold text-black">
+
+                  ${producto.precio}
+
+                </span>
+
+                <button
+                  onClick={() =>
+                    editarProducto(producto)
+                  }
+                  className="border px-4 py-2 rounded-lg text-sm hover:bg-gray-100 transition"
+                >
                   Editar
                 </button>
 
               </div>
 
             </div>
+
           </div>
+
         ))}
 
       </div>
+
     </div>
   );
 }
