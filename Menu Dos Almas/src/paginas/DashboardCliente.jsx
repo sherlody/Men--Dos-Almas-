@@ -31,6 +31,31 @@ function DashboardCliente() {
       });
   }, []);
 
+  Notify.init({
+      position: 'center-top',
+      distance: '20px',
+      width: '420px',
+      height: 'auto',
+      fontSize: '18px',
+      borderRadius: '18px',
+      clickToClose: false,
+      timeout: 10000,
+      cssAnimationStyle: 'from-top',
+      showOnlyTheLastOne: false,
+  
+      success: {
+        background: '#22c55e',
+      },
+    
+      info: {
+        background: '#f59e0b',
+      },
+    
+      failure: {
+        background: '#ef4444',
+      }
+    });
+
   // 2. RASTREO DE ESTADOS (Polling a 2 segundos para rapidez)
   useEffect(() => {
     let intervalo;
@@ -136,7 +161,7 @@ function DashboardCliente() {
     if (!pedidoActivoId) return;
     try {
       const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/solicitar-pago`, {
-        method: "POST", // Cambiado a POST para coincidir con el controlador
+        method: "PUT", // Cambiado a POST para coincidir con el controlador
         headers: { "Content-Type": "application/json", "Accept": "application/json" }
       });
       const data = await respuesta.json();

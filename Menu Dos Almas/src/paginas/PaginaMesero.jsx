@@ -50,6 +50,31 @@ function PaginaMesero() {
     return () => clearInterval(intervalo);
   }, []);
 
+  Notify.init({
+    position: 'center-top',
+    distance: '20px',
+    width: '420px',
+    height: 'auto',
+    fontSize: '18px',
+    borderRadius: '18px',
+    clickToClose: false,
+    timeout: 10000,
+    cssAnimationStyle: 'from-top',
+    showOnlyTheLastOne: false,
+
+    success: {
+      background: '#22c55e',
+    },
+  
+    info: {
+      background: '#f59e0b',
+    },
+  
+    failure: {
+      background: '#ef4444',
+    }
+  });
+  
   // =====================================
   // CAMBIAR ESTADO (ENTREGAR Y COBRAR)
   // =====================================
