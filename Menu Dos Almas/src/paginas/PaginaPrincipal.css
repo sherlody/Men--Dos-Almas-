@@ -124,6 +124,7 @@
 
 /* EFECTO HOVER */
 .table-button:hover {
+
   transform: scale(1.08);
 }
 
@@ -167,4 +168,24 @@
   background: #6a3f1c;
 
   border-radius: 10px;
+
+  background-color: #d1d5db;
+  transform: scale(1.05);
+}
+
+.table-button.mesa-ocupada {
+  background-color: #d1d5db !important; /* Gris claro */
+  color: #9ca3af !important; /* Texto gris */
+  cursor: not-allowed;
+  transform: none !important; /* Evita que se mueva al pasar el mouse */
+  border-color: #e5e7eb !important;
+}
+
+.status-label {
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 4px;
+
 }

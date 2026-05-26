@@ -10,6 +10,38 @@ use Illuminate\Support\Facades\DB;
 
 class PedidosController extends Controller
 {
+    // --- 1. NUEVAS FUNCIONES PARA CONTROL DE MESAS ---
+
+    public function obtenerEstadoMesas() 
+    {
+        try {
+            // Esto obtiene todas las mesas para la PaginaPrincipal
+            return response()->json(Mesa::all(['num_mesa', 'disponible']));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verificarDisponibilidadMesa($num_mesa)
+    {
+        // Esto verifica una sola mesa cuando entras al DashboardCliente
+        $mesa = Mesa::where('num_mesa', $num_mesa)->first();
+        
+        if (!$mesa) {
+            return response()->json(['disponible' => false, 'mensaje' => 'Mesa no encontrada'], 404);
+        }
+        
+        // Forzamos que sea un booleano puro
+        $estaDisponible = ($mesa->disponible == 1 || $mesa->disponible == true);
+
+        return response()->json([
+            'disponible' => $estaDisponible,
+            'mensaje' => $estaDisponible ? 'Libre' : 'Ocupada'
+        ]);
+    }
+
+    // --- 2. TUS FUNCIONES ORIGINALES ---
+
     public function procesarOrden(Request $request)
     {
         $request->validate([

@@ -32,4 +32,5 @@ Route::put('/pedido/{id}/solicitar-pago', [PedidosController::class, 'solicitarP
 
 Route::post('/mesa/{id}/solicitar-pago', [PedidosController::class, 'solicitarPago']);
 Route::get('/mesas/alertas-pago', [PedidosController::class, 'obtenerAlertasPago']);
-
+Route::get('/mesas/estado', [PedidosController::class, 'obtenerEstadoMesas']);
+Route::get('/mesa/{num_mesa}/disponibilidad', [PedidosController::class, 'verificarDisponibilidadMesa']);
