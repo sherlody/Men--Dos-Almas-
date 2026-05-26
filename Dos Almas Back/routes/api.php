@@ -29,3 +29,7 @@ Route::post('/usuarios', [UsuariosController::class, 'store']);
 Route::put('/usuarios/{id}', [UsuariosController::class, 'update']);
 Route::get('/roles', [UsuariosController::class, 'roles']);
 Route::put('/pedido/{id}/solicitar-pago', [PedidosController::class, 'solicitarPago']);
+
+Route::post('/mesa/{id}/solicitar-pago', [PedidosController::class, 'solicitarPago']);
+Route::get('/mesas/alertas-pago', [PedidosController::class, 'obtenerAlertasPago']);
+

@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class PedidosController extends Controller
 {
-    // Función que ya tenías (se queda igual)
     public function procesarOrden(Request $request)
     {
         $request->validate([
@@ -35,6 +34,7 @@ class PedidosController extends Controller
             $pedido->id_mesa = $mesa->id_mesa;
             $pedido->total = $request->total;
             $pedido->estado = 'pendiente';
+            $pedido->solicita_pago = false; // Inicializamos en falso
             $pedido->save();
 
             foreach ($request->productos as $item) {
@@ -67,12 +67,8 @@ class PedidosController extends Controller
         }
     }
 
-    // --- NUEVAS FUNCIONES PARA LA COCINA ---
-
-    // 1. Obtener pedidos para la pantalla del cocinero
     public function obtenerPedidosActivos()
     {
-        // Traemos pedidos con estado pendiente o preparando, y anexamos la información de mesa y productos
         $pedidos = Pedido::with(['detalles.producto', 'mesa'])
             ->whereIn('estado', ['pendiente', 'preparando'])
             ->get()
@@ -82,7 +78,6 @@ class PedidosController extends Controller
                     'mesa' => str_pad($pedido->mesa->num_mesa, 2, '0', STR_PAD_LEFT),
                     'estado' => $pedido->estado,
                     'items' => $pedido->detalles->map(function($d) {
-                        // Concatenamos "Cantidad x NombreProducto" (Ej: "2x Hamburguesa")
                         return $d->cantidad . 'x ' . ($d->producto ? $d->producto->nombre_producto : 'Producto eliminado');
                     })
                 ];
@@ -91,41 +86,19 @@ class PedidosController extends Controller
         return response()->json($pedidos);
     }
 
-    // Función para que el mesero vea los pedidos que ya están en preparación o entregados
     public function obtenerPedidosMesero()
     {
         $pedidos = Pedido::with(['detalles.producto', 'mesa'])
-            ->whereIn('estado', [
-                'pendiente',
-                'preparando',
-                'listo',
-                'entregado'
-            ])
+            ->whereIn('estado', ['pendiente', 'preparando', 'listo', 'entregado'])
             ->get()
             ->map(function($pedido) {
-
                 return [
                     'id' => $pedido->id_pedido,
-
-                    'mesa' => str_pad(
-                        $pedido->mesa->num_mesa,
-                        2,
-                        '0',
-                        STR_PAD_LEFT
-                    ),
-
+                    'mesa' => str_pad($pedido->mesa->num_mesa, 2, '0', STR_PAD_LEFT),
                     'estado' => $pedido->estado,
-
+                    'solicita_pago' => $pedido->solicita_pago,
                     'items' => $pedido->detalles->map(function($d) {
-
-                        return $d->cantidad .
-                            'x ' .
-                            (
-                                $d->producto
-                                ? $d->producto->nombre_producto
-                                : 'Producto eliminado'
-                            );
-
+                        return $d->cantidad . 'x ' . ($d->producto ? $d->producto->nombre_producto : 'Producto eliminado');
                     })
                 ];
             });
@@ -133,98 +106,75 @@ class PedidosController extends Controller
         return response()->json($pedidos);
     }
 
-    // 2. Actualizar el estado del pedido al darle clic en "Comenzar" u "Orden Lista"
     public function actualizarEstado(Request $request, $id)
     {
-        $request->validate([
-            'estado' => 'required|string'
-        ]);
-
+        $request->validate(['estado' => 'required|string']);
         $pedido = Pedido::with('mesa')->find($id);
 
         if (!$pedido) {
-
-            return response()->json([
-                'success' => false,
-                'mensaje' => 'Pedido no encontrado'
-            ], 404);
+            return response()->json(['success' => false, 'mensaje' => 'Pedido no encontrado'], 404);
         }
 
-        // =========================
-        // ESTADOS VALIDOS
-        // =========================
-        $estadosValidos = [
-            'pendiente',
-            'preparando',
-            'listo',
-            'entregado',
-            'pagado'
-        ];
-
+        $estadosValidos = ['pendiente', 'preparando', 'listo', 'entregado', 'pagado'];
         if (!in_array($request->estado, $estadosValidos)) {
-
-            return response()->json([
-                'success' => false,
-                'mensaje' => 'Estado inválido'
-            ], 400);
+            return response()->json(['success' => false, 'mensaje' => 'Estado inválido'], 400);
         }
 
-        // =========================
-        // ACTUALIZAR PEDIDO
-        // =========================
         $pedido->estado = $request->estado;
 
-        $pedido->save();
-
-        // =========================
-        // SI YA SE PAGÓ:
-        // LIBERAR MESA
-        // =========================
+        // Si se marca como pagado, reseteamos la alerta de pago y liberamos mesa
         if ($request->estado === 'pagado') {
-
+            $pedido->solicita_pago = false; 
             $pedido->mesa->disponible = true;
-
             $pedido->mesa->save();
         }
 
-        return response()->json([
-            'success' => true
-        ]);
+        $pedido->save();
+        return response()->json(['success' => true]);
     }
 
-
-// Función para que el DashboardCliente consulte cómo va su pedido
     public function verEstadoPedido($id)
     {
         $pedido = Pedido::find($id);
-
         if ($pedido) {
             return response()->json(['estado' => $pedido->estado]);
         }
-
         return response()->json(['error' => 'Pedido no encontrado'], 404);
     }
 
-        public function solicitarPago($id)
+    // --- NUEVAS FUNCIONES PARA NOTIFICACIÓN DE PAGO ---
+
+    // 1. El cliente activa la alerta
+    public function solicitarPago($id)
     {
         $pedido = Pedido::find($id);
-
         if (!$pedido) {
-
-            return response()->json([
-                'success' => false,
-                'mensaje' => 'Pedido no encontrado'
-            ], 404);
-
+            return response()->json(['success' => false, 'mensaje' => 'Pedido no encontrado'], 404);
         }
 
         $pedido->solicita_pago = true;
-
         $pedido->save();
 
         return response()->json([
             'success' => true,
             'mensaje' => 'Mesero notificado'
         ]);
+    }
+
+    // 2. El mesero consulta quiénes quieren pagar
+    public function obtenerAlertasPago()
+    {
+        $pedidosConAlerta = Pedido::with('mesa')
+            ->where('solicita_pago', true)
+            ->where('estado', '!=', 'pagado')
+            ->get()
+            ->map(function($p) {
+                return [
+                    'id_pedido' => $p->id_pedido,
+                    'mesa' => $p->mesa->num_mesa
+                ];
+            });
+
+        return response()->json($pedidosConAlerta);
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; 
-import { HiStar, HiOutlineLogout, HiTrash, HiRefresh, HiCreditCard, HiPlus, HiMinus } from "react-icons/hi";
+import { HiOutlineLogout, HiRefresh, HiCreditCard, HiPlus, HiMinus } from "react-icons/hi";
 import { useNavigate, useParams } from "react-router-dom"; 
 import { Notify } from "notiflix";
 import './PaginaCocinero.css'; 
@@ -8,21 +8,16 @@ function DashboardCliente() {
   const navigate = useNavigate();
   const { mesaId } = useParams(); 
   
-  // ESTADOS PARA DATOS
   const [secciones, setSecciones] = useState({ preferencias: [], recomendados: [], categorias: [] });
   const [loading, setLoading] = useState(true);
-
-  // ESTADOS DE CARRITO E HISTORIAL
   const [pedido, setPedido] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [pestaña, setPestaña] = useState('carrito');
   const [solicitandoPago, setSolicitandoPago] = useState(false);
-
-  // NUEVOS ESTADOS PARA RASTREAR EL PEDIDO EN COCINA
   const [pedidoActivoId, setPedidoActivoId] = useState(null);
   const [estadoPedido, setEstadoPedido] = useState(null);
 
-  // CARGAR DATOS 
+  // 1. CARGAR MENÚ
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/menu") 
       .then(response => response.json())
@@ -36,113 +31,45 @@ function DashboardCliente() {
       });
   }, []);
 
-  // EFECTO PARA RASTREAR EL ESTADO DEL PEDIDO (POLLING)
+  // 2. RASTREO DE ESTADOS (Polling a 2 segundos para rapidez)
   useEffect(() => {
     let intervalo;
 
-    if (pedidoActivoId && estadoPedido !== 'entregado') {
-        intervalo = setInterval(() => {
-        fetch(
-            `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`
-        )
-            .then(res => res.json())
-            .then(data => {
-            if (!data.estado) return;
-            const nuevoEstado =
-                data.estado.toLowerCase().trim();
-            if (nuevoEstado !== estadoPedido) {
-                setEstadoPedido(nuevoEstado);
-                // =========================
-                // PREPARANDO
-                // =========================
-                if (nuevoEstado === 'preparando') {
-                Notify.info(
-                    "👨‍🍳 ¡El cocinero ha comenzado a preparar tu orden!"
-                );
-                }
-                // =========================
-                // LISTO
-                // =========================
-                if (nuevoEstado === 'listo') {
-                Notify.info(
-                    "✅ ¡Tu orden está lista para ser entregada!"
-                );
-                }
-                // =========================
-                // ENTREGADO
-                // =========================
-                else if (nuevoEstado === 'entregado') {
-                Notify.info(
-                    "✅ ¡Tu orden ya fue entregada!"
-                );
-                setPedidoActivoId(null);
-
-                }
-            }
-            })
-            .catch(err => {
-            console.error(
-                "Error al consultar estado:",
-                err
-            );
-            });
-        }, 2000);
-    }
-    return () => clearInterval(intervalo);
-    }, [pedidoActivoId, estadoPedido]);
-
-    // =====================================
-    // VERIFICAR SI EL PEDIDO YA FUE PAGADO
-    // =====================================
-    useEffect(() => {
-
-    let intervalo;
-
     if (pedidoActivoId) {
-
-        intervalo = setInterval(async () => {
-
-        try {
-
-            const respuesta = await fetch(
-
-            `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`
-
-            );
-
-            const data = await respuesta.json();
-
+      intervalo = setInterval(() => {
+        fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/estado`)
+          .then(res => res.json())
+          .then(data => {
             if (!data.estado) return;
+            const nuevoEstado = data.estado.toLowerCase().trim();
 
-            const estado = data.estado.toLowerCase();
+            if (nuevoEstado !== estadoPedido) {
+              setEstadoPedido(nuevoEstado);
 
-            if (estado === 'pagado') {
-
-            alert(
-                "✅ Tu cuenta ya fue pagada. Gracias por visitar Dos Almas ☕"
-            );
-
-            setPedidoActivoId(null);
-
-            clearInterval(intervalo);
-
+              if (nuevoEstado === 'preparando') {
+                Notify.info("👨‍🍳 ¡El cocinero está preparando tu orden!");
+              }
+              if (nuevoEstado === 'listo') {
+                Notify.info("✅ ¡Tu orden está lista!");
+              }
+              if (nuevoEstado === 'entregado') {
+                Notify.success("🍽️ ¡Pedido entregado! Provecho.");
+              }
+              if (nuevoEstado === 'pagado') {
+                Notify.success("💳 ¡Cuenta pagada con éxito! Gracias por su visita.");
+                setPedidoActivoId(null);
+                setEstadoPedido(null);
+                setSolicitandoPago(false);
+              }
             }
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
-
-        }, 3000);
-
+          })
+          .catch(err => console.error("Error al consultar estado:", err));
+      }, 2000); 
     }
-
     return () => clearInterval(intervalo);
+  }, [pedidoActivoId, estadoPedido]);
 
-    }, [pedidoActivoId]);
-
-  // Lógica de agregar con cantidad acumulada (x1, x2...)
+  // Lógica de Carrito
   const agregarAlPedido = (item) => {
     setPedido(prevPedido => {
       const existe = prevPedido.find(p => p.id_producto === item.id_producto);
@@ -152,7 +79,6 @@ function DashboardCliente() {
       return [...prevPedido, { ...item, cantidad: 1 }];
     });
     setPestaña('carrito');
-    setSolicitandoPago(false);
   };
 
   const quitarDelPedido = (id) => {
@@ -165,13 +91,10 @@ function DashboardCliente() {
     });
   };
 
+  // ENVIAR ORDEN A COCINA
   const manejarOrden = async () => {
     if (pedido.length === 0) return;
-
-    // Calculamos el total de este pedido específico
     const totalPedido = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
-
-    // Preparamos los datos a enviar
     const datosOrden = {
       id_mesa: parseInt(mesaId) || 1, 
       total: totalPedido,
@@ -181,17 +104,12 @@ function DashboardCliente() {
     try {
       const respuesta = await fetch("http://127.0.0.1:8000/api/ordenar", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(datosOrden)
       });
 
       const data = await respuesta.json();
-
       if (respuesta.ok && data.success) {
-        // Actualizamos el historial en React
         setHistorial(prev => {
           let nuevoHistorial = [...prev];
           pedido.forEach(item => {
@@ -202,49 +120,35 @@ function DashboardCliente() {
           return nuevoHistorial;
         });
         
-        Notify.success(data.mensaje); // "¡Orden enviada a cocina exitosamente!"
-        setPedido([]); // Limpiamos carrito
-        setPestaña('consumos'); // Cambiamos de pestaña
-
-        // NUEVO: Guardamos el ID del pedido para rastrearlo
+        Notify.success("🚀 ¡Orden enviada!");
         setPedidoActivoId(data.id_pedido);
         setEstadoPedido('pendiente');
-        
-      } else {
-        Notify.failure("Error del servidor: " + data.mensaje);
+        setPedido([]); 
+        setPestaña('consumos'); 
       }
-    } catch (error) {
-      console.error("Error enviando el pedido:", error);
-      Notify.failure("Hubo un problema de conexión al enviar la orden.");
+    } catch  {
+      Notify.failure("Error de conexión al enviar la orden.");
     }
   };
 
+  // SOLICITAR PAGO AL MESERO
   const manejarPago = async () => {
+    if (!pedidoActivoId) return;
     try {
-        const respuesta = await fetch(
-        `http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/solicitar-pago`,
-        {
-            method: "PUT",
-            headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-            }
-        }
-        );
-        const data = await respuesta.json();
-        if (respuesta.ok && data.success) {
+      const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/solicitar-pago`, {
+        method: "POST", // Cambiado a POST para coincidir con el controlador
+        headers: { "Content-Type": "application/json", "Accept": "application/json" }
+      });
+      const data = await respuesta.json();
+      if (respuesta.ok && data.success) {
         setSolicitandoPago(true);
-        Notify.success(
-            "✅ El mesero ha sido notificado para cobrar la cuenta."
-        );
-        }
-    } catch (error) {
-        console.error(error);
-        Notify.failure("Error notificando al mesero.");
+        Notify.warning("🔔 Mesero notificado. Preparando tu cuenta...");
+      }
+    } catch  {
+      Notify.failure("Error al llamar al mesero.");
     }
-    };
+  };
 
-  // Cálculos de totales con parseFloat para asegurar que el precio de la DB sea número
   const totalActual = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
   const totalHistorico = historial.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
   const totalCuenta = totalActual + totalHistorico;
@@ -253,8 +157,6 @@ function DashboardCliente() {
 
   return (
     <div className="bg-white w-screen h-screen flex flex-col overflow-hidden font-sans">
-      
-      {/* HEADER */}
       <header className="bg-[#ff7e21] text-white p-3 flex justify-between items-center shrink-0 shadow-md">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/")} className="hover:bg-orange-600 p-2 rounded-full transition-colors">
@@ -268,11 +170,8 @@ function DashboardCliente() {
       </header>
 
       <div className="flex flex-1 w-full overflow-hidden p-6 gap-6">
-        
-        {/* PARTE IZQUIERDA: CARTA */}
+        {/* LADO IZQUIERDO: MENÚ */}
         <div className="w-[55%] h-full overflow-y-auto pr-2 space-y-6 custom-scrollbar shrink-0">
-          
-          {/* Lo más pedido */}
           {secciones.preferencias?.length > 0 && (
             <section className="space-y-4">
               <div className="w-full bg-[#ff7e21] rounded-[30px] p-5 text-white shadow-lg">
@@ -284,19 +183,6 @@ function DashboardCliente() {
             </section>
           )}
 
-          {/* Recomendados */}
-          {secciones.recomendados?.length > 0 && (
-            <section className="space-y-4">
-              <div className="w-full bg-blue-600 rounded-[30px] p-5 text-white shadow-lg">
-                <h2 className="text-2xl font-black uppercase">Recomendados</h2>
-              </div>
-              <div className="flex overflow-x-auto gap-4 pb-4 px-2">
-                {secciones.recomendados.map(item => renderCard(item))}
-              </div>
-            </section>
-          )}
-
-          {/* Categorías Generales */}
           {secciones.categorias?.map((cat, idx) => (
             <section key={idx} className="space-y-4">
               <div className="w-full bg-gray-800 rounded-[30px] p-5 text-white shadow-lg">
@@ -309,10 +195,8 @@ function DashboardCliente() {
           ))}
         </div>
 
-        {/* PARTE DERECHA: CARRITO Y CONSUMOS */}
+        {/* LADO DERECHO: CARRITO / CONSUMOS */}
         <div className="flex-1 h-full flex flex-col overflow-hidden bg-gray-50 rounded-[40px] p-6 border-2 border-dashed border-gray-200">
-          
-          {/* Selector de Pestañas */}
           <div className="flex gap-2 mb-6 bg-gray-200 p-1 rounded-full">
             <button onClick={() => setPestaña('carrito')} className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase transition-all ${pestaña === 'carrito' ? 'bg-[#ff7e21] text-white shadow-md' : 'text-gray-500'}`}>
               Carrito ({pedido.reduce((a, b) => a + b.cantidad, 0)})
@@ -322,7 +206,6 @@ function DashboardCliente() {
             </button>
           </div>
 
-          {/* Lista Dinámica */}
           <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
             {pestaña === 'carrito' ? (
               pedido.map((item) => (
@@ -363,7 +246,6 @@ function DashboardCliente() {
             )}
           </div>
 
-          {/* Footer de Pago */}
           <div className="mt-6 pt-6 border-t-2 border-gray-200">
             <div className="flex justify-between items-center mb-5 px-2">
               <span className="text-xs font-black text-gray-400 uppercase">Total Cuenta:</span>
@@ -377,22 +259,17 @@ function DashboardCliente() {
                 disabled={historial.length === 0 || solicitandoPago} 
                 onClick={manejarPago} 
                 className={`btn !py-4 !text-lg !rounded-[22px] !border-2 flex items-center justify-center gap-2 transition-all
-                  ${historial.length === 0 ? 'btn-disabled-white' : solicitandoPago ? 'bg-green-500 border-green-600 text-white animate-pulse' : 'btn-white !border-blue-600 !text-blue-600'}`}
+                  ${historial.length === 0 ? 'btn-disabled-white' : solicitandoPago ? 'bg-green-500 border-green-600 text-white' : 'btn-white !border-blue-600 !text-blue-600'}`}
               >
-                {solicitandoPago ? "✅ MESERO NOTIFICADO" : <><HiCreditCard size={24} /> PAGAR CUENTA</>}
+                {solicitandoPago ? "⌛ MESERO EN CAMINO" : <><HiCreditCard size={24} /> SOLICITAR CUENTA</>}
               </button>
-              {solicitandoPago && (
-                <button onClick={() => navigate("/login")} className="text-[10px] text-center text-gray-400 underline mt-1">Finalizar sesión</button>
-              )}
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
 
-  // Tarjeta de producto individual
   function renderCard(item) {
     return (
       <div key={item.id_producto} className="min-w-[170px] bg-white rounded-[25px] overflow-hidden shadow-md border shrink-0 hover:scale-105 transition-transform duration-300">
