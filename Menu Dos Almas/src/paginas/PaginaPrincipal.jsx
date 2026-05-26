@@ -46,7 +46,12 @@ function PaginaPrincipal() {
               // Ahora enviamos el número de mesa a la URL
               onClick={() => navigate(`/dashboard-cliente/${num}`)} 
             >
-              {num}
+                <div className="table-label">
+                    <span>Mesa</span>
+                    <span className="table-number">
+                        {num}
+                    </span>
+                </div>
             </button>
           ))}
         </div>
