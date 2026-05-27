@@ -36,8 +36,8 @@ function DashboardEmpleado() {
         <aside className="sidebar">
           <div className="sidebar-group">
             <SidebarItem icon={<HiOutlineHome />} label="Inicio"  onClick={() => navigate("/dashboard")} />
-            <SidebarItem icon={<HiOutlineAdjustments />} label="Ajustes menú" onClick={()=> navigate("/dashboard/ajustes-menu")} />
             <SidebarItem icon={<HiOutlineClipboardList />} label="Catalogo" onClick={() => navigate("/dashboard/catalogo")} />
+            <SidebarItem icon={<HiOutlineAdjustments />} label="Ajustes menú" onClick={()=> navigate("/dashboard/ajustes-menu")} />
           </div>
 
           <div className="sidebar-group">

@@ -123,6 +123,21 @@ function Catalogo() {
   };
 
   // =========================
+    // HANDLE CHANGE
+    // =========================
+    const handleChange = (e) => {
+
+    setFormData({
+
+        ...formData,
+
+        [e.target.name]: e.target.value
+
+    });
+
+    };
+
+  // =========================
   // GUARDAR PRODUCTO
   // =========================
   const guardarProducto = async (e) => {
@@ -193,66 +208,47 @@ function Catalogo() {
   // =========================
   // CAMPOS DEL MODAL
   // =========================
-  const camposProducto = [
-
+    const camposProducto = [
     {
-      label: "Clave",
-      type: "text",
-      value: formData.clave,
-      onChange: (valor) =>
-        setFormData({
-          ...formData,
-          clave: valor
-        })
+        label: "Clave",
+        name: "clave",
+        type: "text",
+        placeholder: "Ingrese clave"
     },
 
     {
-      label: "Nombre producto",
-      type: "text",
-      value: formData.nombre_producto,
-      onChange: (valor) =>
-        setFormData({
-          ...formData,
-          nombre_producto: valor
-        })
+        label: "Nombre producto",
+        name: "nombre_producto",
+        type: "text",
+        placeholder: "Ingrese nombre"
     },
 
     {
-      label: "Precio",
-      type: "number",
-      value: formData.precio,
-      onChange: (valor) =>
-        setFormData({
-          ...formData,
-          precio: valor
-        })
+        label: "Precio",
+        name: "precio",
+        type: "number",
+        placeholder: "Ingrese precio"
     },
 
     {
-      label: "Imagen",
-      type: "text",
-      placeholder:
-        "URL o ruta de imagen",
-      value: formData.imagen,
-      onChange: (valor) =>
-        setFormData({
-          ...formData,
-          imagen: valor
-        })
+        label: "Imagen",
+        name: "imagen",
+        type: "text",
+        placeholder: "URL de imagen"
     },
 
     {
-      label: "Categoría",
-      type: "select",
-      value: formData.id_categoria,
-      options: categorias,
-      onChange: (valor) =>
-        setFormData({
-          ...formData,
-          id_categoria: valor
-        })
+        label: "Categoría",
+        name: "id_categoria",
+        type: "select",
+
+        options: categorias.map((categoria) => ({
+        value: categoria.id_categoria,
+        label: categoria.nombre_categoria
+        }))
     }
-  ];
+
+    ];
 
   return (
 
@@ -278,16 +274,26 @@ function Catalogo() {
       {openModal && (
 
         <Modal
-          titulo={
+        titulo={
             productoEditando
-              ? "Editar producto"
-              : "Nuevo producto"
-          }
-          campos={camposProducto}
-          onClose={() =>
-            setOpenModal(false)
-          }
-          onSubmit={guardarProducto}
+            ? "Editar producto"
+            : "Nuevo producto"
+        }
+
+        campos={camposProducto}
+
+        formData={formData}
+
+        handleChange={(e) =>
+            setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+            })
+        }
+
+        onClose={() => setOpenModal(false)}
+
+        onSubmit={guardarProducto}
         />
 
       )}
