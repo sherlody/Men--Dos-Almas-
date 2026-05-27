@@ -56,7 +56,7 @@ function DashboardCliente() {
       }
     });
 
-  // 2. RASTREO DE ESTADOS (Polling a 2 segundos para rapidez)
+  // 2. RASTREO DE ESTADOS
   useEffect(() => {
     let intervalo;
 
@@ -94,7 +94,6 @@ function DashboardCliente() {
     return () => clearInterval(intervalo);
   }, [pedidoActivoId, estadoPedido]);
 
-  // Lógica de Carrito
   const agregarAlPedido = (item) => {
     setPedido(prevPedido => {
       const existe = prevPedido.find(p => p.id_producto === item.id_producto);
@@ -116,7 +115,6 @@ function DashboardCliente() {
     });
   };
 
-  // ENVIAR ORDEN A COCINA
   const manejarOrden = async () => {
     if (pedido.length === 0) return;
     const totalPedido = pedido.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
@@ -151,17 +149,16 @@ function DashboardCliente() {
         setPedido([]); 
         setPestaña('consumos'); 
       }
-    } catch  {
+    } catch {
       Notify.failure("Error de conexión al enviar la orden.");
     }
   };
 
-  // SOLICITAR PAGO AL MESERO
   const manejarPago = async () => {
     if (!pedidoActivoId) return;
     try {
       const respuesta = await fetch(`http://127.0.0.1:8000/api/pedido/${pedidoActivoId}/solicitar-pago`, {
-        method: "PUT", // Cambiado a POST para coincidir con el controlador
+        method: "PUT", 
         headers: { "Content-Type": "application/json", "Accept": "application/json" }
       });
       const data = await respuesta.json();
@@ -169,7 +166,7 @@ function DashboardCliente() {
         setSolicitandoPago(true);
         Notify.warning("🔔 Mesero notificado. Preparando tu cuenta...");
       }
-    } catch  {
+    } catch {
       Notify.failure("Error al llamar al mesero.");
     }
   };
@@ -197,6 +194,8 @@ function DashboardCliente() {
       <div className="flex flex-1 w-full overflow-hidden p-6 gap-6">
         {/* LADO IZQUIERDO: MENÚ */}
         <div className="w-[55%] h-full overflow-y-auto pr-2 space-y-6 custom-scrollbar shrink-0">
+          
+          {/* SECCIÓN: LO MÁS PEDIDO */}
           {secciones.preferencias?.length > 0 && (
             <section className="space-y-4">
               <div className="w-full bg-[#ff7e21] rounded-[30px] p-5 text-white shadow-lg">
@@ -208,6 +207,19 @@ function DashboardCliente() {
             </section>
           )}
 
+          {/* SECCIÓN NUEVA: RECOMENDACIONES (AGREGADA) */}
+          {secciones.recomendados?.length > 0 && (
+            <section className="space-y-4">
+              <div className="w-full bg-blue-600 rounded-[30px] p-5 text-white shadow-lg">
+                <h2 className="text-2xl font-black uppercase">Recomendaciones</h2>
+              </div>
+              <div className="flex overflow-x-auto gap-4 pb-4 px-2">
+                {secciones.recomendados.map(item => renderCard(item))}
+              </div>
+            </section>
+          )}
+
+          {/* SECCIÓN: CATEGORÍAS */}
           {secciones.categorias?.map((cat, idx) => (
             <section key={idx} className="space-y-4">
               <div className="w-full bg-gray-800 rounded-[30px] p-5 text-white shadow-lg">
